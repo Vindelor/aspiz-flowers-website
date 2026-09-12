@@ -77,7 +77,7 @@ instead of using hardcoded neutral/black colors.
         {% with pr=product.price_range opr=product.original_price_range %}
           {% if pr %}
             <span class="price-display">
-              <span class="price-value">{{ pr.min }} - {{ pr.max }}</span>
+              <span class="price-value">{{ pr.min|floatformat:"-2" }} - {{ pr.max|floatformat:"-2" }}</span>
               <span class="price-unit">₺</span>
             </span>
           {% elif product.has_contact_tier %}
@@ -87,7 +87,7 @@ instead of using hardcoded neutral/black colors.
           {% endif %}
           {% if opr %}
             <span class="price-display price-display-muted" style="font-size: 12px; opacity: .75;">
-              <span class="price-value">{{ opr.min }} - {{ opr.max }}</span>
+              <span class="price-value">{{ opr.min|floatformat:"-2" }} - {{ opr.max|floatformat:"-2" }}</span>
               <span class="price-unit">₺</span>
             </span>
           {% endif %}

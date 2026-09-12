@@ -13,7 +13,7 @@
     justify-content: center;
     min-height: 104px;
     padding: 0.9rem 0.9rem;
-    border-radius: 1rem;
+    border-radius: var(--card-radius, 1rem);
     border: 1px solid rgba(176, 146, 113, 0.35);
     background: rgba(248, 239, 235, 0.72);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
@@ -61,9 +61,9 @@
   .accordion-panel { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
   .accordion-icon { transition: transform .2s ease; }
   .luxe-cta {
-    min-height: 56px;
+    min-height: var(--btn-height, 54px);
     padding: 0.95rem 1.1rem;
-    border-radius: 0.9rem;
+    border-radius: var(--btn-radius, 0.9rem);
     color: #f6ecd4;
     background-image: linear-gradient(110deg, #3c0c1c 0%, #7d2140 45%, #4a0f24 100%);
     background-size: 200% auto;
@@ -145,7 +145,7 @@
                 <span class="tier-label">Min. {{ tier.min_quantity }} adet</span>
                 <span class="tier-price">
                   <span class="price-display">
-                    <span class="price-value">{{ tier.price }}</span>
+                    <span class="price-value">{{ tier.price|floatformat:"-2" }}</span>
                     <span class="price-unit">₺</span>
                   </span>
                 </span>
@@ -178,7 +178,7 @@
                class="w-24 rounded-lg border border-cream-200 dark:border-white/10 px-3 py-2 text-sm
                       focus:outline-none focus:ring-1 focus:ring-[#c9a768] focus:border-[#c9a768]">
         <button type="submit" {% if product.is_sold_out %}disabled{% endif %}
-                  class="flex-1 min-h-[52px] rounded-xl px-4 py-3.5 font-bold text-sm sm:text-base tracking-normal uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-[#6d1a35]/20
+                  class="flex-1 min-h-[54px] rounded-[0.9rem] px-4 py-3.5 font-bold text-sm sm:text-base tracking-normal uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-[#6d1a35]/20
                     text-[#f6ecd4]
                        {% if product.is_sold_out %}bg-wine-100 dark:bg-white/10 text-wine-300 dark:text-[#8a7355] cursor-not-allowed{% else %}luxe-cta text-[#f6ecd4]{% endif %}">
           <i class="fa-solid fa-cart-shopping"></i>

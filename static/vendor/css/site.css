@@ -20,6 +20,13 @@
   --radius-md: 20px;
   --radius-pill: 30px;
   --radius-circle: 50%;
+  /* Standard sizing tokens — every card/panel and every primary/secondary
+     button on the site should reference these instead of a one-off value,
+     so cards and buttons stay a consistent size everywhere. */
+  --card-radius: 1rem;      /* product cards, tier boxes, panels, account card */
+  --radius-soft: 0.75rem;   /* thumbnails, inputs, small rows/icon-buttons */
+  --btn-radius: 0.9rem;     /* all primary CTA buttons (add to cart, checkout, login...) */
+  --btn-height: 54px;       /* all primary CTA buttons */
   --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.4);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1380,8 +1387,8 @@ html.dark-mode .glass-floating-oval .search-box {
   max-width: 960px;
   max-height: min(90vh, 640px);
   overflow: hidden;
-  border-radius: var(--login-radius-md);
-  box-shadow: var(--login-shadow-lg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   transform: translateY(16px) scale(0.98);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -1397,19 +1404,19 @@ html.dark-mode .glass-floating-oval .search-box {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  border: 1px solid var(--login-border-color);
-  background-color: var(--login-bg-main);
-  color: var(--login-text-main);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-main);
+  color: var(--text-main);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--login-transition);
+  transition: var(--transition);
   z-index: 1;
 }
 
 .login-modal-close:hover {
-  background-color: var(--login-accent-primary);
+  background-color: var(--accent-gold);
   color: #ffffff;
 }
 
@@ -1489,7 +1496,7 @@ html.dark-mode .glass-floating-oval .search-box {
 
 .login-form-panel {
   height: 100%;
-  background-color: var(--login-bg-main);
+  background-color: var(--bg-main);
   padding: 2.5rem 2.5rem 2rem;
   overflow-y: auto;
 }
@@ -1497,8 +1504,8 @@ html.dark-mode .glass-floating-oval .search-box {
 .auth-tabs {
   display: flex;
   gap: 4px;
-  background-color: var(--login-bg-card);
-  border-radius: var(--login-radius-pill);
+  background-color: var(--bg-card);
+  border-radius: var(--radius-pill);
   padding: 4px;
   margin-bottom: 1.75rem;
 }
@@ -1508,18 +1515,18 @@ html.dark-mode .glass-floating-oval .search-box {
   padding: 0.6rem 1rem;
   border: none;
   background: transparent;
-  border-radius: var(--login-radius-pill);
+  border-radius: var(--radius-pill);
   font-family: inherit;
   font-weight: 600;
   font-size: 0.8125rem;
-  color: var(--login-text-muted);
+  color: var(--text-muted);
   cursor: pointer;
-  transition: var(--login-transition);
+  transition: var(--transition);
 }
 
 .auth-tab.active {
-  background-color: var(--login-bg-main);
-  color: var(--login-accent-primary);
+  background-color: var(--bg-main);
+  color: var(--accent-gold);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -1532,12 +1539,12 @@ html.dark-mode .glass-floating-oval .search-box {
   font-style: italic;
   font-size: 1.9rem;
   font-weight: 500;
-  color: var(--login-text-main);
+  color: var(--text-main);
   margin-bottom: 0.35rem;
 }
 
 .auth-panel > p {
-  color: var(--login-text-muted);
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
 }
@@ -1557,7 +1564,7 @@ html.dark-mode .glass-floating-oval .search-box {
 .form-group label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--login-text-main);
+  color: var(--text-main);
 }
 
 .field-label-row {
@@ -1568,13 +1575,13 @@ html.dark-mode .glass-floating-oval .search-box {
 
 .inline-link {
   font-size: 0.8125rem;
-  color: var(--login-accent-primary);
+  color: var(--accent-gold);
   font-weight: 500;
-  transition: var(--login-transition);
+  transition: var(--transition);
 }
 
 .inline-link:hover {
-  color: var(--login-accent-hover);
+  color: var(--accent-plum);
   text-decoration: underline;
 }
 
@@ -1587,7 +1594,7 @@ html.dark-mode .glass-floating-oval .search-box {
   inset-inline-start: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--login-text-muted);
+  color: var(--text-muted);
   font-size: 0.9rem;
   pointer-events: none;
 }
@@ -1602,13 +1609,13 @@ html.dark-mode .glass-floating-oval .search-box {
   width: 100%;
   padding: 0.8rem 1rem;
   background-color: rgba(255, 255, 255, 0.6);
-  border: 1px solid var(--login-border-color);
-  border-radius: var(--login-radius-sm);
-  color: var(--login-text-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
   font-family: inherit;
   font-size: 0.9rem;
   outline: none;
-  transition: var(--login-transition);
+  transition: var(--transition);
 }
 
 html.dark-mode .form-group input[type="email"],
@@ -1626,12 +1633,12 @@ html.dark-mode .form-group input[type="text"] {
 }
 
 .form-group input:focus {
-  border-color: var(--login-accent-primary);
+  border-color: var(--accent-gold);
   box-shadow: 0 0 0 3px rgba(217, 127, 136, 0.25);
 }
 
 .form-group input::placeholder {
-  color: var(--login-text-muted);
+  color: var(--text-muted);
   opacity: 0.7;
 }
 
@@ -1650,17 +1657,17 @@ html.dark-mode .form-group input[type="text"] {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: var(--login-text-muted);
+  color: var(--text-muted);
   cursor: pointer;
   padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--login-transition);
+  transition: var(--transition);
 }
 
 .password-toggle-btn:hover {
-  color: var(--login-accent-primary);
+  color: var(--accent-gold);
 }
 
 .error-message {
@@ -1677,7 +1684,7 @@ html.dark-mode .form-group input[type="text"] {
   width: 100%;
   gap: 1rem;
   font-size: 0.8125rem;
-  color: var(--login-text-muted);
+  color: var(--text-muted);
   cursor: pointer;
 }
 
@@ -1727,23 +1734,23 @@ html.dark-mode .form-group input[type="text"] {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: 54px;
+  min-height: var(--btn-height);
   padding: 1rem 1.15rem;
   background-color: transparent;
-  color: var(--login-text-main);
-  border: 1px solid var(--login-accent-primary);
-  border-radius: var(--login-radius-pill);
+  color: var(--text-main);
+  border: 1px solid var(--accent-gold);
+  border-radius: var(--btn-radius);
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   cursor: pointer;
-  transition: var(--login-transition);
+  transition: var(--transition);
   margin-top: 0.25rem;
 }
 
 .login-btn:hover {
-  background-color: var(--login-accent-primary);
+  background-color: var(--accent-gold);
   color: #170a0f;
   transform: none;
 }
@@ -1769,7 +1776,7 @@ html.dark-mode .form-group input[type="text"] {
   text-align: center;
   font-size: 0.8125rem;
   min-height: 1.1rem;
-  color: var(--login-text-main);
+  color: var(--text-main);
 }
 
 .auth-divider {
@@ -1777,7 +1784,7 @@ html.dark-mode .form-group input[type="text"] {
   align-items: center;
   gap: 1rem;
   margin: 1.5rem 0 1.25rem;
-  color: var(--login-text-muted);
+  color: var(--text-muted);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1787,7 +1794,7 @@ html.dark-mode .form-group input[type="text"] {
   content: '';
   flex: 1;
   height: 1px;
-  background-color: var(--login-border-color);
+  background-color: var(--border-color);
 }
 
 .google-btn {
@@ -1797,15 +1804,15 @@ html.dark-mode .form-group input[type="text"] {
   justify-content: center;
   gap: 0.65rem;
   padding: 0.8rem;
-  border: 1px solid var(--login-border-color);
-  border-radius: var(--login-radius-pill);
-  background-color: var(--login-bg-main);
-  color: var(--login-text-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-main);
+  color: var(--text-main);
   font-family: inherit;
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: var(--login-transition);
+  transition: var(--transition);
 }
 
 .google-btn i {
@@ -1814,27 +1821,27 @@ html.dark-mode .form-group input[type="text"] {
 }
 
 .google-btn:hover {
-  border-color: var(--login-accent-primary);
+  border-color: var(--accent-gold);
 }
 
 .register-link {
   text-align: center;
   margin-top: 1.5rem;
   padding-top: 1.25rem;
-  border-top: 1px solid var(--login-border-color);
+  border-top: 1px solid var(--border-color);
   font-size: 0.875rem;
-  color: var(--login-text-muted);
+  color: var(--text-muted);
 }
 
 .register-link a {
-  color: var(--login-accent-primary);
+  color: var(--accent-gold);
   font-weight: 600;
   margin-inline-start: 0.25rem;
-  transition: var(--login-transition);
+  transition: var(--transition);
 }
 
 .register-link a:hover {
-  color: var(--login-accent-hover);
+  color: var(--accent-plum);
   text-decoration: underline;
 }
 
@@ -1855,8 +1862,8 @@ html.dark-mode .form-group input[type="text"] {
 /* Cart Modal */
 .cart-modal-panel {
   max-width: 460px;
-  background-color: var(--login-bg-main);
-  color: var(--login-text-main);
+  background-color: var(--bg-main);
+  color: var(--text-main);
 }
 
 .cart-modal-body {
@@ -1873,7 +1880,7 @@ html.dark-mode .form-group input[type="text"] {
   gap: 12px;
   padding-bottom: 1.25rem;
   margin-bottom: 1.25rem;
-  border-bottom: 1px solid var(--login-border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .cart-modal-header h2 {
@@ -1884,17 +1891,17 @@ html.dark-mode .form-group input[type="text"] {
   font-style: italic;
   font-weight: 500;
   font-size: 1.5rem;
-  color: var(--login-text-main);
+  color: var(--text-main);
 }
 
 .cart-modal-header h2 i {
-  color: var(--login-accent-primary);
+  color: var(--accent-gold);
   font-size: 1.1rem;
 }
 
 .cart-modal-count {
   font-size: 0.8125rem;
-  color: var(--login-text-muted);
+  color: var(--text-muted);
 }
 
 .cart-empty-state {
@@ -1908,7 +1915,7 @@ html.dark-mode .form-group input[type="text"] {
 
 .cart-empty-state i {
   font-size: 2.5rem;
-  color: var(--login-accent-primary);
+  color: var(--accent-gold);
   opacity: 0.5;
   margin-bottom: 6px;
 }
@@ -1916,12 +1923,12 @@ html.dark-mode .form-group input[type="text"] {
 .cart-empty-state p {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--login-text-main);
+  color: var(--text-main);
 }
 
 .cart-empty-state span {
   font-size: 0.8125rem;
-  color: var(--login-text-muted);
+  color: var(--text-muted);
   max-width: 260px;
   line-height: 1.5;
 }
@@ -1929,20 +1936,20 @@ html.dark-mode .form-group input[type="text"] {
 .cart-btn-shop {
   margin-top: 14px;
   padding: 10px 24px;
-  border: 1px solid var(--login-accent-primary);
-  border-radius: var(--login-radius-pill);
+  border: 1px solid var(--accent-gold);
+  border-radius: var(--radius-pill);
   background-color: transparent;
-  color: var(--login-text-main);
+  color: var(--text-main);
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   cursor: pointer;
-  transition: var(--login-transition);
+  transition: var(--transition);
 }
 
 .cart-btn-shop:hover {
-  background-color: var(--login-accent-primary);
+  background-color: var(--accent-gold);
   color: #170a0f;
 }
 
@@ -1960,16 +1967,16 @@ html.dark-mode .form-group input[type="text"] {
   align-items: center;
   gap: 12px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--login-border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .cart-item-thumb {
   flex-shrink: 0;
   width: 56px;
   height: 56px;
-  border-radius: var(--login-radius-sm);
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  background-color: var(--login-bg-card);
+  background-color: var(--bg-card);
 }
 
 .cart-item-thumb img {
@@ -1989,7 +1996,7 @@ html.dark-mode .form-group input[type="text"] {
 .cart-item-name {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--login-text-main);
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1997,7 +2004,7 @@ html.dark-mode .form-group input[type="text"] {
 
 .cart-item-price {
   font-size: 0.8125rem;
-  color: var(--login-accent-primary);
+  color: var(--accent-gold);
   font-weight: 600;
 }
 
@@ -2010,20 +2017,20 @@ html.dark-mode .form-group input[type="text"] {
 .cart-qty-btn {
   width: 24px;
   height: 24px;
-  border-radius: var(--login-radius-sm);
-  border: 1px solid var(--login-border-color);
-  background-color: var(--login-bg-card);
-  color: var(--login-text-main);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-main);
   font-size: 0.75rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--login-transition);
+  transition: var(--transition);
 }
 
 .cart-qty-btn:hover {
-  background-color: var(--login-accent-primary);
+  background-color: var(--accent-gold);
   color: #ffffff;
 }
 
@@ -2041,22 +2048,22 @@ html.dark-mode .form-group input[type="text"] {
   border-radius: 50%;
   border: none;
   background: none;
-  color: var(--login-text-muted);
+  color: var(--text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--login-transition);
+  transition: var(--transition);
 }
 
 .cart-item-remove:hover {
-  background-color: var(--login-border-color);
-  color: var(--login-accent-hover);
+  background-color: var(--border-color);
+  color: var(--accent-plum);
 }
 
 .cart-modal-footer {
   padding-top: 1.25rem;
-  border-top: 1px solid var(--login-border-color);
+  border-top: 1px solid var(--border-color);
 }
 
 .cart-total-row {
@@ -2065,22 +2072,22 @@ html.dark-mode .form-group input[type="text"] {
   justify-content: space-between;
   margin-bottom: 14px;
   font-size: 0.9375rem;
-  color: var(--login-text-main);
+  color: var(--text-main);
 }
 
 .cart-total-row strong {
   font-size: 1.25rem;
-  color: var(--login-accent-primary);
+  color: var(--accent-gold);
 }
 
 .cart-checkout-btn {
   width: 100%;
-  min-height: 54px;
+  min-height: var(--btn-height);
   padding: 1rem 1.15rem;
-  border: 1px solid var(--login-accent-primary);
-  border-radius: var(--login-radius-pill);
+  border: 1px solid var(--accent-gold);
+  border-radius: var(--btn-radius);
   background-color: transparent;
-  color: var(--login-text-main);
+  color: var(--text-main);
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -2090,11 +2097,11 @@ html.dark-mode .form-group input[type="text"] {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: var(--login-transition);
+  transition: var(--transition);
 }
 
 .cart-checkout-btn:hover {
-  background-color: var(--login-accent-primary);
+  background-color: var(--accent-gold);
   color: #170a0f;
 }
 
@@ -2582,11 +2589,12 @@ html[dir="rtl"] .footer-links a:hover {
   flex-direction: column;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 1rem;
+
+  border-radius: var(--card-radius);
+
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
-}
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;}
 
 .product-card:hover {
   transform: translateY(-2px);
@@ -2840,7 +2848,7 @@ html[dir="rtl"] .footer-links a:hover {
 .account-card {
   position: relative;
   padding: 1.25rem 1.25rem 1rem;
-  border-radius: 1rem;
+  border-radius: var(--card-radius);
   background: var(--bg-card);
   border: 1px solid rgba(176, 146, 113, 0.28);
   box-shadow: none;
@@ -2859,7 +2867,7 @@ html[dir="rtl"] .footer-links a:hover {
 .account-avatar {
   width: 42px;
   height: 42px;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-soft);
   background: transparent;
   border: 1px solid rgba(176, 146, 113, 0.42);
   display: flex;
@@ -2896,33 +2904,35 @@ html[dir="rtl"] .footer-links a:hover {
   gap: 1rem;
 }
 
-.form-group {
+/* Scoped to .account-card so these never collide with the login/cart
+   modal's own .form-group / .input-with-icon / .login-btn rules above. */
+.account-card .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
-.form-group label {
+.account-card .form-group label {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-main, #2b2b2b);
 }
 
-.input-with-icon {
+.account-card .input-with-icon {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.input-with-icon-top {
+.account-card .input-with-icon-top {
   align-items: flex-start;
 }
 
-.input-with-icon-top .field-icon {
+.account-card .input-with-icon-top .field-icon {
   top: 14px;
 }
 
-.input-with-icon .field-icon {
+.account-card .input-with-icon .field-icon {
   position: absolute;
   inset-inline-start: 14px;
   color: var(--accent-gold);
@@ -2931,12 +2941,12 @@ html[dir="rtl"] .footer-links a:hover {
   z-index: 2;
 }
 
-.input-with-icon input,
-.input-with-icon textarea,
-.input-with-icon select {
+.account-card .input-with-icon input,
+.account-card .input-with-icon textarea,
+.account-card .input-with-icon select {
   width: 100%;
   padding: 10px 14px 10px 42px;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-soft);
   font-size: 0.88rem;
   color: var(--text-main);
   background: rgba(255, 255, 255, 0.12);
@@ -2946,27 +2956,28 @@ html[dir="rtl"] .footer-links a:hover {
   box-sizing: border-box;
 }
 
-.input-with-icon input:focus,
-.input-with-icon textarea:focus,
-.input-with-icon select:focus {
+.account-card .input-with-icon input:focus,
+.account-card .input-with-icon textarea:focus,
+.account-card .input-with-icon select:focus {
   background: var(--bg-main);
   border-color: var(--accent-gold);
   box-shadow: 0 0 0 1px var(--accent-gold);
 }
 
-.error-message {
+.account-card .error-message {
   color: #e53e3e;
   font-size: 0.8rem;
   margin-top: 2px;
 }
 
-.login-btn {
+.account-card .login-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  min-height: var(--btn-height);
   padding: 12px 24px;
-  border-radius: 2px;
+  border-radius: var(--btn-radius);
   font-weight: 500;
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -2980,7 +2991,7 @@ html[dir="rtl"] .footer-links a:hover {
   margin-top: 0.5rem;
 }
 
-.login-btn:hover {
+.account-card .login-btn:hover {
   transform: none;
   background: var(--accent-gold);
   color: #170a0f;
@@ -3001,7 +3012,7 @@ html[dir="rtl"] .footer-links a:hover {
   justify-content: space-between;
 
   padding: 0.8rem 0.9rem;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-soft);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(176, 146, 113, 0.2);
   text-decoration: none;
@@ -3201,7 +3212,7 @@ html.dark-mode input:-moz-ui-autofill-preview {
 .space-y-4 input {
   width: 100% !important;
   padding: 10px 14px !important;
-  border-radius: 12px !important;
+  border-radius: var(--radius-soft) !important;
   font-size: 0.9rem !important;
   background: rgba(255, 255, 255, 0.5) !important;
   border: 1px solid rgba(168, 107, 129, 0.25) !important;
@@ -3321,7 +3332,7 @@ html.dark-mode input:-moz-ui-autofill {
 .page-header-link { font-size: .72rem; color: var(--accent-gold); text-decoration: underline; white-space: nowrap; }
 
 /* Shared list panel (cart items / order history rows) - mirrors checkout's order-panel */
-.panel { overflow: hidden; border: 1px solid rgba(176, 146, 113, 0.22); background: rgba(255, 255, 255, 0.06); border-radius: 1rem; box-shadow: none; margin-bottom: 1.25rem; }
+.panel { overflow: hidden; border: 1px solid rgba(176, 146, 113, 0.22); background: rgba(255, 255, 255, 0.06); border-radius: var(--card-radius); box-shadow: none; margin-bottom: 1.25rem; }
 .panel-row { display: flex; align-items: center; gap: .85rem; padding: .95rem 1.15rem; border-bottom: 1px solid rgba(176, 146, 113, 0.18); background: transparent; }
 .panel-row:last-child { border-bottom: none; }
 .panel-row:hover { background: rgba(255, 255, 255, 0.04); }
@@ -3329,17 +3340,37 @@ html.dark-mode input:-moz-ui-autofill {
 .panel-empty i { font-size: 1.5rem; color: var(--accent-gold); margin-bottom: .65rem; display: block; }
 
 /* Reusable solid CTA button - mirrors checkout page's WhatsApp payment button */
-.btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; min-height: 54px; padding: 1rem 1.2rem; border: 1px solid var(--accent-gold); background: var(--accent-plum); color: #fff; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: .8rem; border-radius: .9rem; transition: var(--transition); box-shadow: 0 10px 24px -12px rgba(109, 26, 53, 0.7); }
+.btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; min-height: var(--btn-height); padding: 1rem 1.2rem; border: 1px solid var(--accent-gold); background: var(--accent-plum); color: #fff; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: .8rem; border-radius: var(--btn-radius); transition: var(--transition); box-shadow: 0 10px 24px -12px rgba(109, 26, 53, 0.7); }
 .btn-primary:hover { background: var(--bg-nav); transform: translateY(-2px); box-shadow: 0 12px 28px -12px rgba(109, 26, 53, 0.8); }
 
+/* Order panel/action — shared by the checkout page and the order-detail page
+   so both use the exact same card + button standard instead of each page
+   redefining its own sizes. (Order status itself reuses the .order-status /
+   .status-* chip already defined above for the profile order list, so there's
+   one status-badge style site-wide, not two.) */
+.order-panel { overflow: hidden; border-radius: var(--card-radius); margin-bottom: 1.25rem; }
+.order-line { display: flex; align-items: center; justify-content: space-between; gap: .85rem; padding: .95rem 1.15rem; border-bottom: 1px solid rgba(176, 146, 113, 0.18); }
+.order-line:last-child { border-bottom: none; }
+.order-line-name { color: var(--text-main); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.1rem; }
+.order-line-price { color: var(--accent-plum); font-weight: 700; white-space: nowrap; font-size: .95rem; }
+.order-summary-total { display: flex; align-items: baseline; justify-content: space-between; gap: .85rem; padding: 1.25rem 1.15rem; background: rgba(255,255,255,0.03); }
+.order-summary-total strong { color: var(--accent-plum); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.7rem; }
+.order-address { margin: .85rem 0 1.25rem; padding: 1rem 1.15rem; border-left: 3px solid var(--accent-gold); background: rgba(255,255,255,0.04); color: var(--text-muted); border-radius: var(--radius-soft); }
+.order-address strong { display: block; margin-bottom: .2rem; color: var(--text-main); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+.order-action { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; min-height: var(--btn-height); padding: .9rem 1rem; border: 1px solid var(--accent-gold); background: var(--accent-plum); color: #fff; font-size: .9rem; font-weight: 700; letter-spacing: .04em; transition: var(--transition); border-radius: var(--btn-radius); }
+.order-action:hover { background: var(--bg-nav); transform: translateY(-2px); }
+.order-note { margin: .7rem auto 0; max-width: 680px; color: var(--text-muted); font-size: .7rem; text-align: center; }
+.order-cancel { display: inline-block; margin-top: 1rem; color: #b4233e; font-size: .75rem; text-decoration: underline; }
+
+
 /* Cart page */
-.cart-thumb { width: 72px; height: 72px; flex-shrink: 0; overflow: hidden; background: var(--bg-main); border: 1px solid rgba(176, 146, 113, 0.24); border-radius: .85rem; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+.cart-thumb { width: 72px; height: 72px; flex-shrink: 0; overflow: hidden; background: var(--bg-main); border: 1px solid rgba(176, 146, 113, 0.24); border-radius: var(--radius-soft); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
 .cart-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.cart-item-info { flex: 1; min-width: 10rem; }
-.cart-item-name { display: block; color: var(--text-main); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.08rem; }
+.panel .cart-item-info { flex: 1; min-width: 10rem; }
+.panel .cart-item-name { display: block; color: var(--text-main); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.08rem; }
 .cart-item-unit { font-size: .85rem; color: var(--text-muted); margin-top: .2rem; }
 .cart-qty-form { display: flex; align-items: center; gap: .5rem; }
-.cart-qty-input { width: 4rem; padding: .5rem .45rem; border: 1px solid rgba(176, 146, 113, 0.28); border-radius: .65rem; background: rgba(255, 255, 255, 0.08); color: var(--text-main); text-align: center; }
+.cart-qty-input { width: 4rem; padding: .5rem .45rem; border: 1px solid rgba(176, 146, 113, 0.28); border-radius: var(--radius-soft); background: rgba(255, 255, 255, 0.08); color: var(--text-main); text-align: center; }
 [data-qty-input] {
   color: var(--accent-plum);
   background: rgba(255, 255, 255, 0.92);
@@ -3351,9 +3382,9 @@ html.dark-mode [data-qty-input] {
 }
 .cart-qty-update { font-size: .7rem; color: var(--accent-gold); text-decoration: none; background: none; border: none; cursor: pointer; }
 .cart-line-total { min-width: 5rem; text-align: right; color: var(--accent-plum); font-size: .95rem; font-weight: 700; }
-.cart-remove-btn { color: #b4233e; background: rgba(180, 35, 62, 0.05); border: 1px solid rgba(180, 35, 62, 0.14); border-radius: .65rem; cursor: pointer; font-size: .95rem; width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center; }
-.cart-total-row { display: flex; align-items: baseline; justify-content: space-between; padding: 1rem 1.15rem; background: rgba(255, 255, 255, 0.04); font-size: .95rem; border-top: 1px solid rgba(176, 146, 113, 0.18); }
-.cart-total-row strong { color: var(--accent-plum); font-family: 'Inter', system-ui, sans-serif; font-size: 1.6rem; font-weight: 700; }
+.cart-remove-btn { color: #b4233e; background: rgba(180, 35, 62, 0.05); border: 1px solid rgba(180, 35, 62, 0.14); border-radius: var(--radius-soft); cursor: pointer; font-size: .95rem; width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center; }
+.panel .cart-total-row { display: flex; align-items: baseline; justify-content: space-between; padding: 1rem 1.15rem; background: rgba(255, 255, 255, 0.04); font-size: .95rem; border-top: 1px solid rgba(176, 146, 113, 0.18); }
+.panel .cart-total-row strong { color: var(--accent-plum); font-family: 'Inter', system-ui, sans-serif; font-size: 1.6rem; font-weight: 700; }
 .cart-empty-icon { font-size: 1.75rem; color: var(--accent-gold); margin-bottom: .7rem; display: block; }
 
 /* Order history rows */
