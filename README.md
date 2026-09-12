@@ -89,21 +89,16 @@ The administrative system allows the business to manage:
 
 ```text
 aspiz-flowers-website/
-│
 ├── website/
 │   ├── aspiz_flowers/
-│   │   ├── settings/
-│   │   ├── urls.py
-│   │   └── ...
-│   │
 │   ├── templates/
 │   ├── static/
 │   ├── media/
 │   ├── manage.py
 │   └── requirements.txt
-│
 ├── Dockerfile
 ├── docker-compose.yml
+├── LICENSE
 ├── .gitignore
 └── README.md
 ```
@@ -217,26 +212,19 @@ The website is deployed on a **Linux VPS** and served through **Nginx**.
 Production architecture:
 
 ```text
-                    GitHub
-                       │
-                       ▼
-                 Linux VPS
-                       │
-                       ▼
-                    Docker
-                       │
-                       ▼
-                   Django
-                       │
-                 ┌─────┴─────┐
-                 ▼           ▼
-              MySQL      WhatsApp API
-                 │
-                 ▼
-                Nginx
-                 │
-                 ▼
-       https://aspizflowers.com
+Production VPS
+     │
+     ▼
+   Nginx
+     │
+     ▼
+   Docker
+     │
+     ▼
+   Django
+     │
+     ├── MySQL
+     └── WhatsApp Business Cloud API
 ```
 
 The production environment is kept separate from development configuration, with sensitive credentials stored outside the repository.
@@ -254,6 +242,7 @@ Development
      ▼
   GitHub
      │
+     │ Automatic Deployment
      ▼
 Production VPS
      │
@@ -288,21 +277,21 @@ The repository is treated as the project's **living source of truth**, allowing 
 
 ## 📊 Project Information
 
-| Information | Details |
-|---|---|
-| Project | Aspiz Flowers |
-| Type | E-Commerce Platform |
-| Status | Completed |
-| Backend | Django |
-| Programming Language | Python |
-| Frontend | Tailwind CSS |
-| Database | MySQL |
-| API Integration | WhatsApp Business Cloud API |
-| Containerization | Docker |
-| Web Server | Nginx |
-| Hosting | Linux VPS |
-| Source Control | Git / GitHub |
-| Live Website | https://aspizflowers.com |
+| Information          | Details                              |
+| -------------------- | ------------------------------------ |
+| Project              | Aspiz Flowers                        |
+| Type                 | E-Commerce Platform                  |
+| Status               | Completed                            |
+| Backend              | Django                               |
+| Programming Language | Python                               |
+| Frontend             | HTML / Tailwind CSS / JavaScript     |
+| Database             | MySQL                                |
+| API Integration      | WhatsApp Business Cloud API          |
+| Containerization     | Docker                               |
+| Web Server           | Nginx                                |
+| Hosting              | Linux VPS                            |
+| Source Control       | Git / GitHub                         |
+| Live Website         | https://aspizflowers.com             |
 
 ---
 
@@ -319,8 +308,6 @@ Potential future updates include:
 - Additional WhatsApp functionality
 - Enhanced monitoring and logging
 - Security improvements
-- Deployment automation
-
 ---
 
 ## 🔒 Project Scope
