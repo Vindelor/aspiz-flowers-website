@@ -101,7 +101,7 @@
                 <span class="order-status status-{{ order.status }}">{{ order.get_status_display }}</span>
                 <span class="order-total">
                   <span class="price-display">
-                    <span class="price-value">{{ order.total }}</span>
+                    <span class="price-value">{{ order.total|floatformat:"-2" }}</span>
                     <span class="price-unit">₺</span>
                   </span>
                 </span>

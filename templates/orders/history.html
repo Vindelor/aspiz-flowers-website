@@ -4,17 +4,17 @@
   <h1 class="font-serif text-xl text-wine-900 dark:text-[#f5f3ef] mb-6">Siparişlerim</h1>
 
   {% if orders %}
-    <div class="bg-white dark:bg-[#2b151f] rounded-2xl border border-cream-200 dark:border-white/10 divide-y divide-cream-100">
+    <div class="panel">
       {% for order in orders %}
-        <a href="{% url 'orders:detail' order.pk %}" class="flex items-center justify-between p-4 hover:bg-cream-50">
+        <a href="{% url 'orders:detail' order.pk %}" class="panel-row" style="justify-content: space-between;">
           <div>
             <p class="text-sm font-medium text-wine-900 dark:text-[#f5f3ef]">Sipariş #{{ order.pk }}</p>
             <p class="text-xs text-wine-400 dark:text-[#a39c8f]">{{ order.created_at|date:"d.m.Y H:i" }}</p>
           </div>
-          <span class="text-xs px-3 py-1 rounded-pill bg-cream-100 dark:bg-[#3a1d2a] text-wine-600 dark:text-[#d8cdbd]">{{ order.get_status_display }}</span>
+          <span class="order-status status-{{ order.status }}">{{ order.get_status_display }}</span>
           <span class="font-semibold text-wine-900 dark:text-[#f5f3ef]">
             <span class="price-display">
-              <span class="price-value">{{ order.total }}</span>
+              <span class="price-value">{{ order.total|floatformat:"-2" }}</span>
               <span class="price-unit">₺</span>
             </span>
           </span>

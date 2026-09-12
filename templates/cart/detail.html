@@ -27,7 +27,7 @@
 
               <p class="cart-item-unit">
                 <span class="price-display">
-                  <span class="price-value">{{ item.unit_price|intcomma }}</span>
+                  <span class="price-value">{{ item.unit_price|floatformat:"-2"|intcomma }}</span>
                   <span class="price-unit">₺</span>
                 </span>
                 / adet
@@ -44,7 +44,7 @@
 
             <strong class="cart-line-total">
               <span class="price-display">
-                <span class="price-value">{{ item.line_total|intcomma }}</span>
+                <span class="price-value">{{ item.line_total|floatformat:"-2"|intcomma }}</span>
                 <span class="price-unit">₺</span>
               </span>
             </strong>
@@ -60,7 +60,7 @@
 
           <strong>
             <span class="price-display price-display-total">
-              <span class="price-value">{{ cart.total_price|intcomma }}</span>
+              <span class="price-value">{{ cart.total_price|floatformat:"-2"|intcomma }}</span>
               <span class="price-unit">₺</span>
             </span>
           </strong>
@@ -68,7 +68,15 @@
         </div>
       </div>
 
-      <a href="{% url 'orders:checkout' %}" class="btn-primary"><i class="fa-brands fa-whatsapp"></i> Devam et ve siparişi ver</a>
+      {% if user.is_authenticated %}
+        <div class="order-address" style="margin-top: 1.25rem;"><strong>Teslimat Adresi</strong>{{ user.address|default:"Profilinizde adres kaydınız yok." }}</div>
+      {% endif %}
+
+      <form action="{% url 'orders:checkout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn-primary"><i class="fa-brands fa-whatsapp"></i> Devam Et ve Siparişi Ver</button>
+        <p class="order-note">Bu düğmeye tıkladığınızda siparişiniz oluşturulur ve ödeme ile teslimat için WhatsApp üzerinden mağazamıza gönderilir.</p>
+      </form>
     {% else %}
       <div class="panel">
         <div class="panel-empty">

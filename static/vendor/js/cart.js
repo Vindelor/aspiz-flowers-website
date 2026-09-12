@@ -31,8 +31,10 @@
     return match ? decodeURIComponent(match[2]) : null;
   }
 
+  // Whole-number prices show with no decimals (20 ₺); only prices the admin
+  // has actually given a fractional value to (19,50 ₺) keep their decimals.
   const formatPriceValue = (value) =>
-    Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
   const formatPrice = (value) => `${formatPriceValue(value)} ₺`;
 

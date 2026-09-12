@@ -5,21 +5,7 @@
 <style>
 
   .order-page { max-width: 920px; margin: 0 auto; padding: 2rem 0 3rem; }
-  .order-panel { overflow: hidden; border-radius: 1rem; margin-bottom: 1.25rem; }
-  .order-line { display: flex; align-items: center; justify-content: space-between; gap: .85rem; padding: .95rem 1.15rem; border-bottom: 1px solid rgba(176, 146, 113, 0.18); }
-  .order-line:last-child { border-bottom: none; }
-  .order-line-name { color: var(--text-main); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.1rem; }
-  .order-line-price { color: var(--accent-plum); font-weight: 700; white-space: nowrap; font-size: .95rem; }
-  .order-total { display: flex; align-items: baseline; justify-content: space-between; gap: .85rem; padding: 1.25rem 1.15rem; background: rgba(255,255,255,0.03); }
-  .order-total strong { color: var(--accent-plum); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.7rem; }
-  .order-address { margin: .85rem 0 1.25rem; padding: 1rem 1.15rem; border-left: 3px solid var(--accent-gold); background: rgba(255,255,255,0.04); color: var(--text-muted); border-radius: 0.85rem; }
-  .order-address strong { display: block; margin-bottom: .2rem; color: var(--text-main); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
-  .order-action { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .9rem 1rem; border: 1px solid var(--accent-gold); background: var(--accent-plum); color: #fff; font-size: .9rem; font-weight: 700; letter-spacing: .04em; transition: var(--transition); border-radius: 0.9rem; }
-  .order-action:hover { background: var(--bg-nav); transform: translateY(-2px); }
-  .order-note { margin: .7rem auto 0; max-width: 680px; color: var(--text-muted); font-size: .7rem; text-align: center; }
-  .order-status { display: inline-flex; align-items: center; gap: .45rem; color: var(--accent-gold); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; }
-  .order-cancel { display: inline-block; margin-top: 1.5rem; color: #b4233e; font-size: .75rem; text-decoration: underline; }
-  @media (max-width: 640px) { .order-page { padding-top: .85rem; } .order-line { align-items: flex-start; } .order-total { align-items: flex-end; } }
+  @media (max-width: 640px) { .order-page { padding-top: .85rem; } .order-line { align-items: flex-start; } .order-summary-total { align-items: flex-end; } }
 
 </style>
 {% endblock %}
@@ -30,22 +16,22 @@
       <span class="page-kicker">Aspiz Flowers · Siparişiniz</span>
       <h1 class="page-title">Sipariş #{{ order.pk }}</h1>
       <div class="page-rule"></div>
-      <div class="order-status"><i class="fa-regular fa-clock"></i> {{ order.get_status_display }}</div>
+      <div class="order-status status-{{ order.status }}">{{ order.get_status_display }}</div>
       <div class="panel order-panel" style="margin-top: 1.25rem;">
         {% for item in order.items.all %}
           <div class="panel-row order-line">
             <span class="order-line-name">{{ item.quantity }} × {{ item.product.name }}</span>
             <span class="order-line-price">
               <span class="price-display">
-                <span class="price-value">{{ item.line_total }}</span>
+                <span class="price-value">{{ item.line_total|floatformat:"-2" }}</span>
                 <span class="price-unit">₺</span>
               </span>
             </span>
           </div>
         {% endfor %}
-        <div class="cart-total-row order-total"><span>Toplam</span><strong>
+        <div class="cart-total-row order-summary-total"><span>Toplam</span><strong>
           <span class="price-display price-display-total">
-            <span class="price-value">{{ order.total }}</span>
+            <span class="price-value">{{ order.total|floatformat:"-2" }}</span>
             <span class="price-unit">₺</span>
           </span>
         </strong></div>
@@ -76,15 +62,15 @@
             <span class="order-line-name">{{ item.quantity }} × {{ item.product.name }}</span>
             <span class="order-line-price">
               <span class="price-display">
-                <span class="price-value">{{ item.line_total }}</span>
+                <span class="price-value">{{ item.line_total|floatformat:"-2" }}</span>
                 <span class="price-unit">₺</span>
               </span>
             </span>
           </div>
         {% endfor %}
-        <div class="cart-total-row order-total"><span>Toplam</span><strong>
+        <div class="cart-total-row order-summary-total"><span>Toplam</span><strong>
           <span class="price-display price-display-total">
-            <span class="price-value">{{ cart.total_price }}</span>
+            <span class="price-value">{{ cart.total_price|floatformat:"-2" }}</span>
             <span class="price-unit">₺</span>
           </span>
         </strong></div>
