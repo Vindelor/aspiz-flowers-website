@@ -274,31 +274,15 @@ The repository is treated as the project's **living source of truth**, allowing 
 
 ---
 
-## 👥 Project Team
+## 👥 Authors & Team
 
-### 👑 Team Lead
-
-**Sepehr Abolhasan**
-
-Project leadership, architecture, development coordination, deployment, and technical direction.
-
-### 💻 Development
-
-**Eileen Ramezani**
-
-Development and implementation contributions.
-
-### 🛠️ Support
-
-**Hesam Zaretavakkoli**
-
-Project support and operational assistance.
-
-### 🛡️ Security
-
-**Sepehr Abolhasan**
-
-Application security and security considerations.
+| Role | Name | GitHub |
+|---|---|---|
+| 👑 Team Lead | **Sepehr Abolhasan** | [`Riddlerf8`](https://github.com/Riddlerf8) |
+| 🛡️ Security Team | **Sepehr Abolhasan** | [`Riddlerf8`](https://github.com/Riddlerf8) |
+| 💻 Developer Team | **Eileen Ramezani** | [`eileenrmz`](https://github.com/eileenrmz) |
+| 🛠️ Support Team | **Hesam Zaretavakoli** | [`hesamzaretavakkoli84-hue`](https://github.com/hesamzaretavakkoli84-hue) |
+| 📈 SEO Team | **Arad Arabi** | [`aradarabi2006-spec`](https://github.com/aradarabi2006-spec) |
 
 ---
 
@@ -351,14 +335,20 @@ This repository focuses exclusively on the development, deployment, and maintena
 
 ---
 
-## 📜 Copyright
+## 📄 License
 
-© 2026 **Aspiz Flowers**
+This project is proprietary software.
 
-Developed by **Sepehr Abolhasan and the project team**.
+Copyright © 2026 Sepehr Abolhasan — All Rights Reserved.
 
-The project's source code, branding, visual assets, product information, and other proprietary materials are intended for the Aspiz Flowers project and may not be reused, redistributed, or commercially reproduced without appropriate permission.
+The source code, original project materials, and project-specific
+implementations are owned by **Sepehr Abolhasan** and developed and
+maintained under **Vindelor**.
 
+Unauthorized copying, modification, redistribution, commercial use,
+or creation of derivative works is prohibited.
+
+See [`LICENSE`](LICENSE) for the complete terms.
 ---
 
 ## 🔗 Links   
@@ -367,7 +357,7 @@ The project's source code, branding, visual assets, product information, and oth
 https://aspizflowers.com
 
 💻 **GitHub Repository**  
-https://github.com/Riddlerf8/aspiz-flowers-website
+https://github.com/Vindelor/aspiz-flowers-website
 
 ---
 
