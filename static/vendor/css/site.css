@@ -2589,11 +2589,12 @@ html[dir="rtl"] .footer-links a:hover {
   flex-direction: column;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
+
   border-radius: var(--card-radius);
+
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
-}
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;}
 
 .product-card:hover {
   transform: translateY(-2px);
