@@ -1,9 +1,60 @@
 import re
 
+import phonenumbers
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 
 from .models import User
+
+# Home market for numbers typed without a country code (e.g. "0555 123 45
+# 67"). Anyone outside Turkey is expected to type their own country code
+# with a leading "+" (e.g. "+1 555 123 4567") — validation below accepts
+# any real, dialable number worldwide, not just Turkish ones.
+DEFAULT_PHONE_REGION = "TR"
+
+
+def _clean_phone_number(raw_phone):
+    """
+    Validates that `raw_phone` is a real, dialable phone number (any
+    country) using Google's libphonenumber, instead of the old "10+
+    digits" check — which let anyone through arbitrary digit strings like
+    "1111111111". Returns the number as digits only (E.164 minus the
+    "+"), which is the same shape phone numbers are stored/matched in
+    elsewhere (see login_request_view's phone lookup).
+    """
+    try:
+        parsed = phonenumbers.parse(raw_phone.strip(), DEFAULT_PHONE_REGION)
+    except phonenumbers.NumberParseException:
+        raise forms.ValidationError("Geçerli bir telefon numarası girin.")
+    if not phonenumbers.is_valid_number(parsed):
+        raise forms.ValidationError("Geçerli bir telefon numarası girin.")
+    e164 = phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
+    return re.sub(r"\D", "", e164)
+
+
+def phone_lookup_candidates(raw_phone):
+    """
+    Login (LoginRequestForm) needs to find an existing user by phone, but
+    phones stored *before* this validation change are plain digit-strings
+    typed by the user (e.g. a Turkish "0555 123 45 67" saved as
+    "05551234567"), while phones stored *after* this change are
+    libphonenumber-normalized (E.164 digits, e.g. "905551234567" — no
+    leading 0). Returns every representation of `raw_phone` worth trying
+    against the `phone` column, so both old and new accounts keep matching
+    regardless of exactly how the number was typed at login vs. signup.
+    """
+    candidates = set()
+    raw_digits = re.sub(r"\D", "", raw_phone)
+    if raw_digits:
+        candidates.add(raw_digits)
+    try:
+        parsed = phonenumbers.parse(raw_phone.strip(), DEFAULT_PHONE_REGION)
+        if phonenumbers.is_valid_number(parsed):
+            e164 = phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
+            candidates.add(re.sub(r"\D", "", e164))
+    except phonenumbers.NumberParseException:
+        pass
+    return candidates
 
 
 def _unique_username_from_email(email):
@@ -50,9 +101,7 @@ class RegisterForm(forms.ModelForm):
         return email
 
     def clean_phone(self):
-        phone = re.sub(r"\D", "", self.cleaned_data["phone"])
-        if len(phone) < 10:
-            raise forms.ValidationError("Geçerli bir telefon numarası girin.")
+        phone = _clean_phone_number(self.cleaned_data["phone"])
         if User.objects.filter(phone=phone, is_active=True).exists():
             raise forms.ValidationError("Bu telefon numarası zaten kayıtlı.")
         return phone
@@ -113,9 +162,7 @@ class ProfileForm(forms.ModelForm):
         return email
 
     def clean_phone(self):
-        phone = re.sub(r"\D", "", self.cleaned_data["phone"])
-        if len(phone) < 10:
-            raise forms.ValidationError("Geçerli bir telefon numarası girin.")
+        phone = _clean_phone_number(self.cleaned_data["phone"])
         exists = User.objects.filter(phone=phone).exclude(pk=self.instance.pk).exists()
         if exists:
             raise forms.ValidationError("Bu telefon numarası zaten kullanılıyor.")

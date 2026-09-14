@@ -291,9 +291,3 @@ class PriceTier(models.Model):
             ).exclude(pk=self.pk)
             if lower_tiers_without_price.exists():
                 raise ValidationError("Fiyat tablosunda yalnızca en yüksek kademe (en yüksek minimum miktar) boş (DM) bırakılabilir.")
-        else:
-            higher_contact_tiers = PriceTier.objects.filter(
-                product=self.product, min_quantity__gt=self.min_quantity, price__isnull=True
-            ).exclude(pk=self.pk)
-            if higher_contact_tiers.exists():
-                raise ValidationError("DM kademesi en yüksek kademe (en yüksek minimum miktar) olmalıdır.")
