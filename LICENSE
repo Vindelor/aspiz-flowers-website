@@ -1,0 +1,200 @@
+PROPRIETARY SOFTWARE LICENSE
+
+Copyright © 2026 Sepehr Abolhasan — All Rights Reserved.
+
+Project: Aspiz Flowers
+Organization: Vindelor
+Repository: aspiz-flowers-website
+Website: https://aspizflowers.com
+
+---
+
+1. OWNERSHIP
+
+This software and all original materials contained in this repository are exclusively owned by Sepehr Abolhasan.
+
+This includes, without limitation:
+
+- Source code
+- Application architecture
+- Original software logic
+- Database structure
+- Original designs and UI implementation
+- Documentation
+- Configuration and deployment files
+- Original scripts
+- Original project assets
+- Project-specific implementations
+
+The project is developed, maintained, and managed under Vindelor.
+
+All rights not expressly granted by this license are reserved by Sepehr Abolhasan.
+
+---
+
+2. PERMITTED USE
+
+Permission to access, use, modify, or distribute this software is granted only when explicitly authorized in writing by Sepehr Abolhasan.
+
+Authorized individuals or organizations may use the software only for purposes specifically approved by the copyright owner.
+
+Any permission granted under this license is limited to the purpose specified by the copyright owner and does not constitute a transfer of ownership.
+
+---
+
+3. RESTRICTIONS
+
+Without prior written permission from Sepehr Abolhasan, you may not:
+
+- Copy or reproduce the source code or substantial portions of it.
+- Publish or redistribute the source code.
+- Sell, sublicense, lease, or otherwise commercially distribute the software.
+- Modify and redistribute the software.
+- Create derivative works based substantially on the software.
+- Use the software or source code in another commercial project.
+- Use the source code to create a competing product or service.
+- Make the repository or its source code available to third parties.
+- Remove or modify copyright, ownership, or license notices.
+- Claim ownership of the software or any substantial portion of it.
+- Use the Aspiz Flowers or Vindelor branding without authorization.
+- Use project-specific assets, designs, product information, or business materials without authorization.
+
+---
+
+4. PUBLIC REPOSITORY
+
+The publication of this repository on GitHub does not make the software open source.
+
+Public access to the repository does not grant any implied license or permission to copy, modify, distribute, or commercially use the source code.
+
+Unless explicitly authorized in writing, all rights remain reserved.
+
+---
+
+5. THIRD-PARTY COMPONENTS
+
+The project may use third-party libraries, frameworks, APIs, packages, fonts, tools, or other components.
+
+Third-party components remain subject to their respective licenses and terms.
+
+This license applies only to the original materials owned by Sepehr Abolhasan and does not replace or restrict rights granted by applicable third-party licenses.
+
+---
+
+6. TRADEMARKS AND BRANDING
+
+The names Aspiz Flowers and Vindelor, together with their respective logos, branding, visual identity, and associated materials, may not be used without prior authorization.
+
+This license does not grant any trademark or branding rights.
+
+---
+
+7. CONFIDENTIAL INFORMATION
+
+This license does not authorize access to or disclosure of confidential information associated with the project.
+
+This includes, but is not limited to:
+
+- API credentials
+- Access tokens
+- Database credentials
+- Private keys
+- Server credentials
+- Customer information
+- Internal business information
+- Private deployment configuration
+- Security-sensitive information
+
+Confidential information must not be disclosed, published, or redistributed.
+
+---
+
+8. NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW.
+
+THE COPYRIGHT OWNER DOES NOT WARRANT THAT THE SOFTWARE WILL BE:
+
+- ERROR-FREE
+- UNINTERRUPTED
+- SECURE
+- FREE FROM VULNERABILITIES
+- SUITABLE FOR A PARTICULAR PURPOSE
+- COMPATIBLE WITH EVERY ENVIRONMENT
+
+USE OF THE SOFTWARE IS AT THE USER'S OWN RISK.
+
+---
+
+9. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, SEPEHR ABOLHASAN AND VINDELOR SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR OTHER DAMAGES ARISING FROM THE USE OF, INABILITY TO USE, MODIFICATION OF, OR DISTRIBUTION OF THE SOFTWARE.
+
+THIS INCLUDES, WITHOUT LIMITATION, LOSS OF DATA, PROFITS, REVENUE, BUSINESS OPPORTUNITIES, OR OTHER ECONOMIC LOSSES.
+
+NOTHING IN THIS LICENSE EXCLUDES LIABILITY THAT CANNOT LAWFULLY BE EXCLUDED UNDER APPLICABLE LAW.
+
+---
+
+10. TERMINATION
+
+Any permission granted under this license automatically terminates if the recipient violates the terms of this license.
+
+Upon termination, the recipient must immediately cease all unauthorized use, distribution, or reproduction of the software and, where applicable, remove unauthorized copies.
+
+Termination does not affect any rights or remedies that have already accrued.
+
+---
+
+11. NO TRANSFER OF OWNERSHIP
+
+Nothing in this license transfers ownership of the software or intellectual property to any individual or organization.
+
+Access to or authorized use of the software does not constitute a sale, assignment, or transfer of copyright or intellectual property rights.
+
+Ownership remains exclusively with Sepehr Abolhasan.
+
+---
+
+12. WRITTEN PERMISSION
+
+Any use not expressly permitted by this license requires prior written permission from Sepehr Abolhasan.
+
+Permission may be granted on a case-by-case basis and may include additional terms or conditions.
+
+---
+
+13. RESERVATION OF RIGHTS
+
+All rights not expressly granted by this license are reserved.
+
+This includes all rights relating to:
+
+- Copyright
+- Modification
+- Distribution
+- Reproduction
+- Commercial use
+- Derivative works
+- Licensing
+- Publication
+
+---
+
+14. GOVERNING LAW
+
+This license shall be interpreted in accordance with applicable law.
+
+If a separate written agreement concerning the Aspiz Flowers project contains terms that conflict with this license, the terms of that written agreement may take precedence to the extent permitted by applicable law.
+
+---
+
+15. COPYRIGHT
+
+Copyright © 2026 Sepehr Abolhasan — All Rights Reserved.
+
+Developed and maintained under Vindelor.
+
+Aspiz Flowers is a project owned and managed by Sepehr Abolhasan.
+
+No rights are granted except those expressly stated in this license.
