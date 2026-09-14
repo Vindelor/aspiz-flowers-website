@@ -21,7 +21,14 @@ from apps.orders.models import Order
 from . import google_oauth
 from django.utils import timezone
 
-from .forms import LoginRequestForm, LoginVerifyForm, ProfileForm, RegisterForm, _unique_username_from_email
+from .forms import (
+    LoginRequestForm,
+    LoginVerifyForm,
+    ProfileForm,
+    RegisterForm,
+    _unique_username_from_email,
+    phone_lookup_candidates,
+)
 from .models import LoginCode
 from .ratelimit import (
     clear_code_verify_failures,
@@ -89,7 +96,7 @@ def login_request_view(request):
     form = LoginRequestForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         email = form.cleaned_data["email"].lower()
-        phone = re.sub(r"\D", "", form.cleaned_data["phone"])
+        phone_candidates = phone_lookup_candidates(form.cleaned_data["phone"])
 
         # Locked/limited by email ONLY (never by email+phone together) —
         # the phone number is exactly the secret being guessed here, so a
@@ -105,7 +112,7 @@ def login_request_view(request):
         if is_code_request_rate_limited(request, email):
             return _auth_error(request, {"__all__": [CODE_REQUEST_RATE_LIMIT_MESSAGE]}, 429)
 
-        user = User.objects.filter(email__iexact=email, phone=phone, is_active=True).first()
+        user = User.objects.filter(email__iexact=email, phone__in=phone_candidates, is_active=True).first()
         if not user:
             register_login_failure(request, email)
             return _auth_error(request, {"__all__": [_ACCOUNT_NOT_FOUND_MESSAGE]}, 400)

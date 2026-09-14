@@ -81,7 +81,7 @@ instead of using hardcoded neutral/black colors.
               <span class="price-unit">₺</span>
             </span>
           {% elif product.has_contact_tier %}
-            <span class="text-[14.5px] font-bold text-emerald-600">Mesaj</span>
+            <span class="text-[14.5px] font-bold text-emerald-600">Teklif Al</span>
           {% else %}
             <span class="text-[14.5px] font-bold" style="color: var(--text-main);">-</span>
           {% endif %}
@@ -93,7 +93,7 @@ instead of using hardcoded neutral/black colors.
           {% endif %}
           {% if product.has_contact_tier and pr %}
             <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50">
-              <i class="fa-brands fa-whatsapp"></i> {{ product.contact_tier.min_quantity }}+ Mesaj
+              <i class="fa-brands fa-whatsapp"></i> {{ product.contact_tier.min_quantity }}+ Teklif Al
             </span>
           {% endif %}
         {% endwith %}

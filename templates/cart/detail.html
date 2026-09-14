@@ -27,7 +27,7 @@
 
               <p class="cart-item-unit">
                 <span class="price-display">
-                  <span class="price-value">{{ item.unit_price|floatformat:"-2"|intcomma }}</span>
+                  <span class="price-value" data-cart-unit-price="{{ item.product_id }}">{{ item.unit_price|floatformat:"-2"|intcomma }}</span>
                   <span class="price-unit">₺</span>
                 </span>
                 / adet
@@ -35,16 +35,19 @@
 
 
             </div>
-            <form action="{% url 'cart:update' item.product_id %}" method="post" class="cart-qty-form">
-              {% csrf_token %}
-              <label class="sr-only" for="quantity-{{ item.product_id }}">Adet</label>
-              <input id="quantity-{{ item.product_id }}" type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock_quantity }}" class="cart-qty-input">
-              <button type="submit" class="cart-qty-update">Güncelle</button>
-            </form>
+            <div style="display:flex; flex-direction:column; gap:.35rem;">
+              <form action="{% url 'cart:update' item.product_id %}" method="post" class="cart-qty-form">
+                {% csrf_token %}
+                <label class="sr-only" for="quantity-{{ item.product_id }}">Adet</label>
+                <input id="quantity-{{ item.product_id }}" type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock_quantity }}" class="cart-qty-input" data-cart-qty-input="{{ item.product_id }}">
+                <button type="submit" class="cart-qty-update">Güncelle</button>
+              </form>
+              <p class="cart-qty-error" data-cart-error="{{ item.product_id }}" hidden style="color:#b3261e; font-size:.8rem; margin:0;"></p>
+            </div>
 
             <strong class="cart-line-total">
               <span class="price-display">
-                <span class="price-value">{{ item.line_total|floatformat:"-2"|intcomma }}</span>
+                <span class="price-value" data-cart-line-total="{{ item.product_id }}">{{ item.line_total|floatformat:"-2"|intcomma }}</span>
                 <span class="price-unit">₺</span>
               </span>
             </strong>
@@ -60,7 +63,7 @@
 
           <strong>
             <span class="price-display price-display-total">
-              <span class="price-value">{{ cart.total_price|floatformat:"-2"|intcomma }}</span>
+              <span class="price-value" data-cart-page-total>{{ cart.total_price|floatformat:"-2"|intcomma }}</span>
               <span class="price-unit">₺</span>
             </span>
           </strong>
@@ -87,4 +90,8 @@
       </div>
     {% endif %}
   </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'vendor/js/cart-detail.js' %}" defer></script>
 {% endblock %}
