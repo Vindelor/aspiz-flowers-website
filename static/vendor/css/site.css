@@ -2518,7 +2518,7 @@ html[dir="rtl"] .footer-links a:hover {
 
 .product-track {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x proximity;
   scroll-behavior: smooth;
@@ -2531,8 +2531,26 @@ html[dir="rtl"] .footer-links a:hover {
 }
 
 .product-track-item {
-  flex: 0 0 auto;
+  flex: 0 0 180px;
+  width: 180px;
+  max-width: 180px;
   scroll-snap-align: start;
+}
+
+@media (max-width: 640px) {
+  .product-track-item {
+    flex-basis: 160px;
+    width: 160px;
+    max-width: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-track-item {
+    flex-basis: 148px;
+    width: 148px;
+    max-width: 148px;
+  }
 }
 
 .view-all-card {
@@ -2625,22 +2643,21 @@ html[dir="rtl"] .footer-links a:hover {
   flex-direction: column;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
-
-  border-radius: var(--card-radius);
-
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;}
+  box-shadow: 0 1px 2px rgba(15, 20, 28, 0.04);
+  transition: box-shadow 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+}
 
 .product-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 16px rgba(15, 20, 28, 0.08);
   border-color: var(--accent-gold);
 }
 
 .product-media {
   position: relative;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 5;
   background-color: var(--bg-main);
   overflow: hidden;
 }
@@ -2713,24 +2730,24 @@ html[dir="rtl"] .footer-links a:hover {
 .badge-runningOut { background-color: #d64545; }
 
 .product-info {
-  padding: 0.95rem 1rem 1rem;
+  padding: 0.7rem 0.8rem 0.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.28rem;
 }
 
 .product-name {
-  font-size: 0.82rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   color: var(--text-main);
-  line-height: 1.4;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 2.4em;
+  min-height: 2.1em;
 }
 
 .product-min-qty {

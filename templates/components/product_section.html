@@ -31,7 +31,7 @@ templates/products/list.html — that page is where cards shrink down to the
   <div class="product-track" data-product-track tabindex="0" role="region"
        aria-label="{{ title }} ürünleri arasında gezinme">
     {% for product in products|slice:":10" %}
-      <div class="product-track-item w-[46%] sm:w-[31%] md:w-[23.5%] lg:w-[19%]">
+      <div class="product-track-item">
         {% include "components/product_card.html" with product=product %}
       </div>
     {% empty %}
@@ -39,7 +39,7 @@ templates/products/list.html — that page is where cards shrink down to the
     {% endfor %}
 
     {% if see_all_url and products|length > 4 %}
-      <div class="product-track-item w-[46%] sm:w-[31%] md:w-[23.5%] lg:w-[19%]">
+      <div class="product-track-item">
         <a href="{{ see_all_url }}" class="view-all-card h-full">
           <span class="view-all-card-icon">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
