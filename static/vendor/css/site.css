@@ -86,14 +86,10 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   outline-offset: 2px;
 }
 
-/* Standart genişliği ayarla ve %100 modunda yapışmayı önle.
-   max-width artık sabit 1200px değil: dar ekranlarda (mobil/tablet) hiçbir
-   şey değişmiyor (90vw zaten 1200px'in altında kalıyor), ama geniş
-   monitörlerde container 1600px'e kadar büyüyerek kenar boşluğunu
-   ekran boyutuna göre kendiliğinden küçültüyor. */
+/* Standart genişliği ayarla ve %100 modunda yapışmayı önle */
 .container {
   width: 100%;
-  max-width: clamp(1200px, 90vw, 1600px) !important;
+  max-width: 1200px !important; /* tercihe göre 1200px de kullanılabilir */
   margin-left: auto !important;
   margin-right: auto !important;
   padding-left: 1.5rem !important;  /* sol kenardan 32 piksel boşluk */
@@ -680,7 +676,9 @@ html.dark-mode .moon-icon { display: none; }
 }
 
 .category-slider .container {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .slider-track {
@@ -740,6 +738,38 @@ html.dark-mode .moon-icon { display: none; }
 
 .cat-item:hover span {
   color: var(--accent-gold);
+}
+
+.slider-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  width: 35px;
+  height: 35px;
+  border-radius: var(--radius-circle);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.slider-btn:hover {
+  background-color: var(--accent-gold);
+  color: #ffffff;
+}
+
+.slider-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background-color: var(--bg-card);
+  color: var(--text-main);
+}
+
+.slider-btn:disabled:hover {
+  background-color: var(--bg-card);
+  color: var(--text-main);
 }
 
 /* ==========================================================================
@@ -1249,16 +1279,6 @@ html.dark-mode .glass-floating-oval .search-box {
     padding: 12px 0;
   }
 
-  .category-slider .container {
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  .slider-track {
-    gap: 12px;
-    padding-inline: 16px;
-  }
-
   .cat-item {
     width: 70px;
   }
@@ -1270,6 +1290,12 @@ html.dark-mode .glass-floating-oval .search-box {
 
   .cat-item span {
     font-size: 0.6875rem;
+  }
+
+  .slider-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.75rem;
   }
 }
 
@@ -2528,68 +2554,6 @@ html[dir="rtl"] .footer-links a:hover {
 
 .product-track::-webkit-scrollbar {
   display: none;
-}
-
-.product-track-item {
-  flex: 0 0 auto;
-  scroll-snap-align: start;
-}
-
-.view-all-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.85rem;
-  height: 100%;
-  min-height: 100%;
-  text-align: center;
-  padding: 1.5rem 1rem;
-  background: color-mix(in srgb, var(--bg-card) 55%, transparent);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
-  border-radius: var(--card-radius);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-}
-
-.view-all-card:hover {
-  background: color-mix(in srgb, var(--accent-plum) 14%, var(--bg-card) 55%);
-  border-color: var(--accent-plum);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.view-all-card-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  flex-shrink: 0;
-  border-radius: var(--radius-circle);
-  background: color-mix(in srgb, var(--bg-main) 75%, transparent);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  color: var(--accent-plum);
-  border: 1px solid color-mix(in srgb, var(--border-color) 90%, transparent);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-}
-
-.view-all-card:hover .view-all-card-icon {
-  background-color: var(--accent-plum);
-  border-color: var(--accent-plum);
-  color: #fff;
-}
-
-.view-all-card-text {
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--text-main);
 }
 
 .product-slider-btn {
