@@ -1,18 +1,25 @@
 {% comment %}
 Usage:
 {% include "components/product_section.html" with title="Tüm Ürünler" products=all_products see_all_url=... %}
-Grid matches templates/products/list.html exactly (grid-cols-2 sm:grid-cols-3 lg:grid-cols-4)
-so cards are the same size everywhere on the site. Colors come from the theme
-CSS variables in static/vendor/css/site.css, so this adapts to light/dark mode
-automatically.
+
+Home / detail page section: up to 10 products in a single row that the user
+scrolls left-and-right themselves (drag / touch swipe / trackpad / arrow keys
+while focused) — no click buttons, purely user-driven scrolling — ending in a
+frosted-glass "Tümünü Gör" card that is wrapped exactly like a product card
+(same .product-track-item box) so it always matches their height/width
+pixel-for-pixel. No extra horizontal padding here beyond the page's own
+.container, so cards sit close to the edge the same way the rest of the site
+does. The full catalogue keeps its own, denser grid on
+templates/products/list.html — that page is where cards shrink down to the
+"see everything" size; this carousel is the highlight strip.
 {% endcomment %}
-<section class="px-4 py-8 md:px-6 md:py-10">
+<section class="py-8 md:py-10">
   <div class="mb-5 flex items-end justify-between md:mb-7">
     <h2 class="font-display text-3xl uppercase leading-none tracking-wide md:text-4xl" style="color: var(--text-main);">
       {{ title }}
     </h2>
     {% if see_all_url and products|length > 4 %}
-      <a href="{{ see_all_url }}" class="flex shrink-0 items-center gap-1 text-sm font-medium transition-colors" style="color: var(--text-muted);">
+      <a href="{{ see_all_url }}" class="view-all-link shrink-0">
         Tümünü Gör
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
@@ -21,11 +28,27 @@ automatically.
     {% endif %}
   </div>
 
-  <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 lg:grid-cols-4">
-    {% for product in products|slice:":4" %}
-      {% include "components/product_card.html" with product=product %}
+  <div class="product-track" data-product-track tabindex="0" role="region"
+       aria-label="{{ title }} ürünleri arasında gezinme">
+    {% for product in products|slice:":10" %}
+      <div class="product-track-item w-[42%] sm:w-[28%] md:w-[21%] lg:w-[16.5%] xl:w-[14%]">
+        {% include "components/product_card.html" with product=product %}
+      </div>
     {% empty %}
       <p class="col-span-full text-sm" style="color: var(--text-muted);">Bu bölümde henüz ürün yok.</p>
     {% endfor %}
+
+    {% if see_all_url and products|length > 4 %}
+      <div class="product-track-item self-stretch w-[42%] sm:w-[28%] md:w-[21%] lg:w-[16.5%] xl:w-[14%]">
+        <a href="{{ see_all_url }}" class="view-all-card h-full">
+          <span class="view-all-card-icon">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+            </svg>
+          </span>
+          <span class="view-all-card-text">Tümünü Gör</span>
+        </a>
+      </div>
+    {% endif %}
   </div>
 </section>
