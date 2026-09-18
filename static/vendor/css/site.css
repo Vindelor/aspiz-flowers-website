@@ -2518,13 +2518,12 @@ html[dir="rtl"] .footer-links a:hover {
 
 .product-track {
   display: flex;
+
   gap: 12px;
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
-  scroll-behavior: smooth;
-  padding-block: 4px;
-  scrollbar-width: none;
-}
+
+  align-items: flex-start;
+  gap: 16px;
+
 
 .product-track::-webkit-scrollbar {
   display: none;
