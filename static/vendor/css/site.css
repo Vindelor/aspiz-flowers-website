@@ -2518,6 +2518,7 @@ html[dir="rtl"] .footer-links a:hover {
 
 .product-track {
   display: flex;
+  align-items: flex-start;
   gap: 16px;
   overflow-x: auto;
   scroll-snap-type: x proximity;
