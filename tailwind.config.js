@@ -4,9 +4,23 @@ module.exports = {
   // so Tailwind's dark: variant needs to match that selector instead of
   // its default .dark class.
   darkMode: ['selector', '.dark-mode'],
+  // site.css already ships its own base reset (body/a/button/input/ul...)
+  // and its own .container class with different breakpoints. Tailwind's
+  // Preflight and its built-in "container" utility redefine those same
+  // selectors, and since output.css loads AFTER site.css, Tailwind's
+  // rules were silently winning the cascade for any property both files
+  // set. Turning these two core plugins off stops Tailwind from
+  // generating them at all, so there's only ever one definition of each.
+  corePlugins: {
+    preflight: false,
+    container: false,
+  },
   content: [
     "./templates/**/*.html",
     "./apps/**/templates/**/*.html",
+    // product-detail.js toggles the Tailwind class "rotate-180" at runtime;
+    // Tailwind only keeps classes it can SEE, so it must scan the JS too.
+    "./static/vendor/js/**/*.js",
   ],
   theme: {
     extend: {
@@ -32,7 +46,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        serif: ["'Playfair Display'", "serif"],
+        serif: ["'Cormorant Garamond'", "Georgia", "serif"], // Playfair was never loaded in base.html
         sans: ["'Inter'", "sans-serif"],
         display: ["'Bebas Neue'", "'Inter'", "sans-serif"],
       },
