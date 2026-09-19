@@ -13,8 +13,8 @@ does. The full catalogue keeps its own, denser grid on
 templates/products/list.html — that page is where cards shrink down to the
 "see everything" size; this carousel is the highlight strip.
 {% endcomment %}
-<section class="py-8 md:py-10">
-  <div class="mb-5 flex items-end justify-between md:mb-7">
+<section class="py-5 md:py-10">
+  <div class="mb-3 flex items-end justify-between md:mb-7">
     <h2 class="font-display text-3xl uppercase leading-none tracking-wide md:text-4xl" style="color: var(--text-main);">
       {{ title }}
     </h2>
@@ -31,9 +31,7 @@ templates/products/list.html — that page is where cards shrink down to the
   <div class="product-track" data-product-track tabindex="0" role="region"
        aria-label="{{ title }} ürünleri arasında gezinme">
     {% for product in products|slice:":10" %}
-
       <div class="product-track-item">
-
         {% include "components/product_card.html" with product=product %}
       </div>
     {% empty %}
@@ -41,10 +39,8 @@ templates/products/list.html — that page is where cards shrink down to the
     {% endfor %}
 
     {% if see_all_url and products|length > 4 %}
-
       <div class="product-track-item">
-
-        <a href="{{ see_all_url }}" class="view-all-card h-full">
+        <a href="{{ see_all_url }}" class="view-all-card">
           <span class="view-all-card-icon">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>

@@ -29,6 +29,17 @@
   --btn-height: 54px;       /* all primary CTA buttons */
   --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.18);
+
+  /* ---- Product card size: the ONLY place card dimensions are defined ----
+     Shared by the carousels (.product-track-item) and the catalogue grid
+     (.product-grid), so a card is the same size on every page.
+     Trendyol-style: portrait photo 3:4 (Trendyol's own minimum upload is
+     600x800), ~220px wide on desktop, 2 columns on phones. */
+  --card-w: 220px;        /* carousel card width */
+  --card-min: 208px;      /* grid: narrowest a column may get */
+  --card-ratio: 3 / 4;    /* photo ratio; use 2 / 3 for taller cards */
+  --card-gap: 16px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --z-overlay: 1050;
   --z-sidebar: 1060;
@@ -2518,41 +2529,25 @@ html[dir="rtl"] .footer-links a:hover {
 
 .product-track {
   display: flex;
-
-  gap: 12px;
-
-  align-items: flex-start;
-  gap: 16px;
-
+  align-items: stretch;
+  gap: var(--card-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  padding-block: 4px;
+  scrollbar-width: none;
+}
 
 .product-track::-webkit-scrollbar {
   display: none;
 }
 
-.product-track-item {
-  flex: 0 0 180px;
-  width: 180px;
-  max-width: 180px;
-  scroll-snap-align: start;
-}
 
-@media (max-width: 640px) {
-  .product-track-item {
-    flex-basis: 160px;
-    width: 160px;
-    max-width: 160px;
-  }
-}
 
-@media (max-width: 480px) {
-  .product-track-item {
-    flex-basis: 148px;
-    width: 148px;
-    max-width: 148px;
-  }
-}
 
 .view-all-card {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2636,10 +2631,64 @@ html[dir="rtl"] .footer-links a:hover {
   cursor: not-allowed;
 }
 
+/* ==========================================================================
+   PRODUCT CARD + GRID + CAROUSEL  (single source of truth for card size)
+   --------------------------------------------------------------------------
+   Everything that decides how big a card is lives here and uses the
+   --card-* tokens from :root. Nothing structural depends on Tailwind
+   utilities any more, so a stale / missing / re-ordered output.css can no
+   longer change the size or shape of a card.
+   ========================================================================== */
+
+/* Catalogue grid (products/list.html). auto-fill => as many ~220px columns as
+   fit; on phones it is a fixed, Trendyol-style 2-column layout. */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min), 1fr));
+  gap: var(--card-gap);
+  align-items: stretch;
+}
+
+.product-grid > * {
+  min-width: 0;
+}
+
+/* Horizontal strip (home + related products). Fixed card width. */
+.product-track-item {
+  display: flex;
+  flex: 0 0 var(--card-w);
+  width: var(--card-w);
+  max-width: var(--card-w);
+  scroll-snap-align: start;
+}
+
+.product-track-item > * {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Phones: the strips show 2.5 cards (the half card hints "swipe me"); the
+   catalogue grid stays 2 columns but with tighter rows. */
+@media (max-width: 640px) {
+  :root {
+    --card-gap: 8px;
+    /* container side padding is 1.5rem x 2, and 2.5 cards + 2 gaps must fit */
+    --card-w: calc((100vw - 3rem - 2 * var(--card-gap)) / 2.5);
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--card-gap);
+    row-gap: 6px;
+  }
+}
+
 .product-card {
-  width: 100%;
+  position: relative;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  height: 100%;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 12px;
@@ -2654,24 +2703,284 @@ html[dir="rtl"] .footer-links a:hover {
   border-color: var(--accent-gold);
 }
 
+/* --- photo ------------------------------------------------------------- */
 .product-media {
   position: relative;
-  aspect-ratio: 4 / 5;
+  flex: none;
+  aspect-ratio: var(--card-ratio);
   background-color: var(--bg-main);
   overflow: hidden;
 }
 
+.product-media-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
 .product-media img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
   transition: transform 0.4s ease;
 }
 
 .product-card:hover .product-media img {
-  transform: scale(1.06);
+  transform: scale(1.05);
 }
+
+.product-card.is-sold-out .product-media img {
+  filter: grayscale(1);
+  opacity: 0.7;
+  transform: none;
+}
+
+.product-media-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.product-card__badges {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  pointer-events: none;
+}
+
+.product-card__badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.product-card__badge--discount {
+  background-color: #dc2626;
+}
+
+.product-card__badge--label {
+  background-color: var(--accent-plum);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.product-card__add {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--bg-card);
+  color: var(--accent-plum);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.product-card__add svg {
+  width: 14px;
+  height: 14px;
+}
+
+.product-card__add:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.product-card__add:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.product-card__add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.product-card__soldout {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(74, 15, 36, 0.45);
+  pointer-events: none;
+}
+
+.product-card__soldout span {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* --- text -------------------------------------------------------------- */
+.product-info {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.7rem 0.8rem 0.8rem;
+}
+
+/* Always reserves exactly two lines, so 1-line and 2-line names give the same
+   card height. (The old rule used min-height 2.1em and the Tailwind ".block"
+   utility overrode its display:-webkit-box, which killed the line clamp.) */
+.product-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  min-height: calc(1.35em * 2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--text-main);
+}
+
+.product-price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  align-content: flex-start;
+  gap: 0.15rem 0.5rem;
+  margin-top: auto;
+  min-height: 2.75rem;
+}
+
+.product-card .price-display {
+  font-size: 1rem;
+}
+
+.product-card .price-display-muted {
+  font-size: 0.75rem;
+  opacity: 0.75;
+  text-decoration: line-through;
+}
+
+.product-card__quote {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.product-card__quote-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, #10b981 14%, transparent);
+  color: #047857;
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+html.dark-mode .product-card__quote-pill {
+  color: #6ee7b7;
+}
+
+.product-card__unavailable {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background-color: var(--bg-main);
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+/* --- phones: smaller card internals (must stay AFTER the base card rules) --- */
+@media (max-width: 640px) {
+  .product-card {
+    border-radius: 10px;
+  }
+
+  .product-info {
+    gap: 0.2rem;
+    padding: 0.5rem 0.55rem 0.6rem;
+  }
+
+  .product-name {
+    font-size: 0.6875rem;
+  }
+
+  .product-price-row {
+    gap: 0.1rem 0.35rem;
+    min-height: 2.35rem;
+  }
+
+  .product-card .price-display {
+    font-size: 0.875rem;
+  }
+
+  .product-card .price-display-muted {
+    font-size: 0.6875rem;
+  }
+
+  .product-card__badges {
+    top: 0.4rem;
+    left: 0.4rem;
+    gap: 0.25rem;
+  }
+
+  .product-card__badge {
+    padding: 0.15rem 0.45rem;
+    font-size: 0.5625rem;
+  }
+
+  .product-card__add {
+    top: 0.4rem;
+    right: 0.4rem;
+    width: 28px;
+    height: 28px;
+  }
+
+  .product-card__add svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .product-card__quote-pill {
+    padding: 0.1rem 0.4rem;
+    font-size: 0.5625rem;
+  }
+}
+
+
+
+
+
+
 
 .discount-tag {
   position: absolute;
@@ -2728,26 +3037,7 @@ html[dir="rtl"] .footer-links a:hover {
 .badge-limited { background-color: #c98a1f; }
 .badge-runningOut { background-color: #d64545; }
 
-.product-info {
-  padding: 0.7rem 0.8rem 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.28rem;
-}
 
-.product-name {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  color: var(--text-main);
-  line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  min-height: 2.1em;
-}
 
 .product-min-qty {
   font-size: 0.75rem;
@@ -2755,13 +3045,6 @@ html[dir="rtl"] .footer-links a:hover {
   margin-top: 2px;
 }
 
-.product-price-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem 0.5rem;
-  margin-top: 0.4rem;
-}
 
 .price-display {
   display: inline-flex;

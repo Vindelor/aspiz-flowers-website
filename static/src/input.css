@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Preflight is switched off (see tailwind.config.js) because site.css owns the
+   global reset. Preflight also did two useful things, though, and turning it
+   off silently broke them:
+     1. gave every element "border-style: solid", so Tailwind's ".border",
+        ".border-t", ".border-b" ... actually draw a line (without it they set
+        a width but the style stays "none" -> invisible borders);
+     2. removed the native grey border / background of <button>.
+   We add back only those two, at ZERO specificity (:where), so any class in
+   site.css or any Tailwind utility still wins over them. */
+@layer base {
+  :where(*:not(input):not(select):not(textarea)),
+  :where(*:not(input):not(select):not(textarea))::before,
+  :where(*:not(input):not(select):not(textarea))::after {
+    border-width: 0;
+    border-style: solid;
+    border-color: var(--border-color, #e5e7eb);
+  }
+
+  :where(button) {
+    background-color: transparent;
+    background-image: none;
+    color: inherit;
+  }
+}

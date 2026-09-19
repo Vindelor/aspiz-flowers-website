@@ -18,6 +18,9 @@ module.exports = {
   content: [
     "./templates/**/*.html",
     "./apps/**/templates/**/*.html",
+    // product-detail.js toggles the Tailwind class "rotate-180" at runtime;
+    // Tailwind only keeps classes it can SEE, so it must scan the JS too.
+    "./static/vendor/js/**/*.js",
   ],
   theme: {
     extend: {
@@ -43,7 +46,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        serif: ["'Playfair Display'", "serif"],
+        serif: ["'Cormorant Garamond'", "Georgia", "serif"], // Playfair was never loaded in base.html
         sans: ["'Inter'", "sans-serif"],
         display: ["'Bebas Neue'", "'Inter'", "sans-serif"],
       },
