@@ -12,6 +12,9 @@
   --accent-plum: #8c2a4b;
   --accent-rose: #a86b81;
   --accent-gold: #b8925a;
+  --accent-gold-text: #87652f; /* gold for TEXT on light bg: 5.1:1 (the fill gold is only 2.7:1) */
+  --autofill-bg: #f0e4d2;
+  --autofill-text: #2a151d;
   --border-color: rgba(107, 33, 56, 0.15);
 
   /* Layout & Elevations */
@@ -57,6 +60,9 @@ html.dark-mode {
   --accent-plum: #8c2a4b;
   --accent-rose: #d1829e;
   --accent-gold: #c9a768;
+  --accent-gold-text: #c9a768;
+  --autofill-bg: #241118;
+  --autofill-text: #ffffff;
   --border-color: rgba(201, 167, 104, 0.18);
 }
 
@@ -429,8 +435,8 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 .cat-item:hover span{color:var(--accent-gold)}
 .overlay{position:fixed;top:0;left:0;width:100%;height:100vh;background:rgba(0,0,0,.45);z-index:var(--z-overlay);opacity:0;pointer-events:none;transition:opacity .3s ease}
 .overlay.active{opacity:1;pointer-events:all}
-.mobile-sidebar{position:fixed;top:0;left:0;width:310px;height:100vh;background:var(--bg-main);border-right:1px solid var(--border-color);z-index:var(--z-sidebar);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow-lg)}
-.mobile-sidebar.active{transform:translateX(0)}
+.mobile-sidebar{position:fixed;top:0;left:0;width:310px;height:100vh;background:var(--bg-main);border-right:1px solid var(--border-color);z-index:var(--z-sidebar);display:flex;flex-direction:column;transform:translateX(-100%);visibility:hidden;box-shadow:none;transition:transform .35s cubic-bezier(.4,0,.2,1),box-shadow .35s ease,visibility 0s linear .35s}
+.mobile-sidebar.active{transform:translateX(0);visibility:visible;box-shadow:var(--shadow-lg);transition:transform .35s cubic-bezier(.4,0,.2,1),box-shadow .35s ease,visibility 0s}
 .sidebar-header{padding:20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-color)}
 .sidebar-logo{display:flex;align-items:center;gap:12px;color:var(--text-main)}
 .sidebar-logo i{font-size:1.5rem;color:var(--accent-gold)}
@@ -725,7 +731,10 @@ html.dark-mode .glass-floating-oval .search-box {
 
 @media screen and (max-width: 480px) {
   .container {
-    padding: 0 12px;
+    /* !important is required: the base .container rule above uses it too,
+       so without it this 12px never wins and the gap stays at 1.5rem. */
+    padding-left: 12px !important;
+    padding-right: 12px !important;
   }
 
   .mobile-sidebar {
@@ -1950,7 +1959,7 @@ html[dir="rtl"] .footer-links a:hover {
   gap: 6px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--accent-gold);
+  color: var(--accent-gold-text);
   transition: var(--transition);
 }
 
@@ -2124,6 +2133,26 @@ html[dir="rtl"] .footer-links a:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--card-gap);
     row-gap: 6px;
+  }
+}
+
+/* Small phones only (<= 480px): tighter side gap. The 12px here must match
+   the .container padding in the 480px block near the top of this file. Wider
+   screens (tablet / desktop) keep the original 1.5rem gap. */
+@media (max-width: 480px) {
+  :root {
+    /* strip starts 12px from the left edge and runs off the right edge:
+       12px + 2.5 cards + 2 gaps = 100vw */
+    --card-w: calc((100vw - 12px - 2 * var(--card-gap)) / 2.5);
+  }
+
+  /* let the carousel bleed to the screen edges instead of being cut off
+     inside the container's padding (cancel the container's 12px, re-add it
+     as scroll padding so the first card still lines up with the heading) */
+  .product-track {
+    margin-inline: -12px;
+    padding-inline: 12px;
+    scroll-padding-inline: 12px;
   }
 }
 
@@ -2894,30 +2923,6 @@ html.dark-mode .product-card__quote-pill {
   }
 }
 
-input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active,
-input:-autofill,
-input:-autofill:hover,
-input:-autofill:focus {
-
-  -webkit-box-shadow: 0 0 0 1000px #e6d3ab inset !important;
-
-  -webkit-text-fill-color: #ffffff !important;
-  caret-color: #ffffff !important;
-  border-color: #b8925a !important;
-}
-
-
-html.dark-mode input:-webkit-autofill,
-html.dark-mode input:-webkit-autofill:hover, 
-html.dark-mode input:-webkit-autofill:focus, 
-html.dark-mode input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px #241118 inset !important;
-  -webkit-text-fill-color: #ffffff !important;
-  border-color: #c9a768 !important;
-}
 /* ==========================================================================
    FIX LOGIN BUTTON & FIREFOX AUTOFILL PINK STYLES
    ========================================================================== */
@@ -2942,47 +2947,31 @@ button[type="submit"].login-btn:hover,
 }
 
 
-@keyframes autofill-pink {
-  to {
-    background-color: #e6d3ab !important;
-    color: #ffffff !important;
-  }
-}
-
+/* Autofill colours.
+   One selector list per engine on purpose: a single unknown selector inside
+   a list (e.g. ":-autofill" or ":-moz-ui-autofill") makes the browser drop
+   the WHOLE rule. ":-webkit-autofill" covers Chrome/Edge/Safari (and Firefox
+   accepts it as an alias); ":autofill" is the standard name. */
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
+input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
-input:-webkit-autofill:active,
-input:-moz-ui-autofill,
-input:-moz-ui-autofill-preview {
-  animation-name: autofill-pink !important;
-  animation-fill-mode: both !important;
-  -webkit-box-shadow: 0 0 0 1000px #e6d3ab inset !important;
-  -webkit-text-fill-color: #ffffff !important;
-  color: #ffffff !important;
-  border-color: #b8925a !important;
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--autofill-bg) inset !important;
+  -webkit-text-fill-color: var(--autofill-text) !important;
+  caret-color: var(--autofill-text) !important;
+  border-color: var(--accent-gold) !important;
 }
 
-
-@keyframes autofill-pink-dark {
-  to {
-    background-color: #241118 !important;
-    color: #ffffff !important;
-  }
+input:autofill,
+input:autofill:hover,
+input:autofill:focus,
+input:autofill:active {
+  background-color: var(--autofill-bg) !important;
+  color: var(--autofill-text) !important;
+  caret-color: var(--autofill-text) !important;
+  border-color: var(--accent-gold) !important;
 }
 
-html.dark-mode input:-webkit-autofill,
-html.dark-mode input:-webkit-autofill:hover, 
-html.dark-mode input:-webkit-autofill:focus,
-html.dark-mode input:-webkit-autofill:active,
-html.dark-mode input:-moz-ui-autofill,
-html.dark-mode input:-moz-ui-autofill-preview {
-  animation-name: autofill-pink-dark !important;
-  animation-fill-mode: both !important;
-  -webkit-box-shadow: 0 0 0 1000px #241118 inset !important;
-  -webkit-text-fill-color: #ffffff !important;
-  color: #ffffff !important;
-}
 /* ==========================================================================
    GLASS INPUTS & PINK AUTOFILL FOR LOGIN FORM
    ========================================================================== */
@@ -3103,12 +3092,12 @@ html.dark-mode input:-moz-ui-autofill {
    product list, cart, order history and auth pages match it instead of
    each inventing its own heading style.
    ========================================================================== */
-.page-kicker { color: var(--accent-gold); font-size: .65rem; letter-spacing: .22em; text-transform: uppercase; }
+.page-kicker { color: var(--accent-gold-text); font-size: .65rem; letter-spacing: .22em; text-transform: uppercase; }
 .page-title { margin: .3rem 0 1.25rem; color: var(--text-main); font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1.4rem, 2.5vw, 1.9rem); font-weight: 600; line-height: 1; }
 .page-rule { width: 58px; height: 2px; margin-bottom: 1.5rem; background: var(--accent-gold); }
 .page-header-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .page-header-row .page-title { margin-bottom: 0; }
-.page-header-link { font-size: .72rem; color: var(--accent-gold); text-decoration: underline; white-space: nowrap; }
+.page-header-link { font-size: .72rem; color: var(--accent-gold-text); text-decoration: underline; white-space: nowrap; }
 
 /* Shared list panel (cart items / order history rows) - mirrors checkout's order-panel */
 .panel { overflow: hidden; border: 1px solid rgba(176, 146, 113, 0.22); background: rgba(255, 255, 255, 0.06); border-radius: var(--card-radius); box-shadow: none; margin-bottom: 1.25rem; }
@@ -3176,4 +3165,4 @@ html.dark-mode [data-qty-input] {
 /* Standalone auth pages (login / register / password reset) reuse .account-card */
 .auth-page { max-width: 440px; margin: 2.5rem auto 4rem; }
 .auth-note { text-align: center; font-size: .85rem; color: var(--text-muted); margin-top: 1.25rem; }
-.auth-note a { color: var(--accent-gold); font-weight: 600; text-decoration: underline; }
+.auth-note a { color: var(--accent-gold-text); font-weight: 600; text-decoration: underline; }
