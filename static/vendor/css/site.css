@@ -2282,7 +2282,7 @@ html[dir="rtl"] .footer-links a:hover {
 
 .product-card__add:hover:not(:disabled) {
   transform: scale(1.1);
-
+}
 .product-track {
   display: flex;
   align-items: stretch;
