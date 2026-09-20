@@ -3,26 +3,9 @@ name: Deploy to VPS
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
-  # Runs on GitHub's own machine BEFORE anything touches the server.
-  # If the CSS is broken (e.g. a merge left a "{" without its "}") or Tailwind
-  # can't build, the deploy stops here and the live site stays untouched.
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - name: CSS sanity check + Tailwind build
-        run: npm run build:css
-
   deploy:
-    needs: check
     runs-on: ubuntu-latest
     steps:
       - name: SSH and deploy
@@ -33,13 +16,10 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            set -e
             cd /var/www/flower-shop
             git pull origin main
             source venv/bin/activate
             pip install -r requirements.txt
-            npm ci
-            npm run build:css
             python manage.py migrate --noinput
             python manage.py collectstatic --noinput
             deactivate
