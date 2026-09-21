@@ -1,0 +1,16 @@
+# Normalize all text files to LF in the repo, regardless of what line
+# ending your editor/OS saves them with locally. This stops every file
+# from showing as "modified" just because it was opened/saved on Windows.
+* text=auto eol=lf
+
+# Binary files — never touch these
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
