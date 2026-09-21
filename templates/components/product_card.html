@@ -1,37 +1,31 @@
 {% comment %}
 Usage: {% include "components/product_card.html" with product=product %}
-Flat "catalogue card" style, fully themed via the site's own CSS variables
-(--bg-card, --bg-main, --text-main, --text-muted, --accent-plum, --border-color
-from static/vendor/css/site.css) so it automatically matches light/dark mode
-instead of using hardcoded neutral/black colors.
+
+Every rule that decides the size / shape of this card lives in
+static/vendor/css/site.css (section "PRODUCT CARD"), driven by the --card-*
+tokens. Only semantic classes are used here on purpose: no Tailwind utilities
+for layout, so a stale or re-ordered output.css cannot change the card.
+Colours come from the site's own CSS variables, so light/dark mode just works.
 {% endcomment %}
+<div class="product-card{% if product.is_sold_out %} is-sold-out{% endif %}">
 
-<div class="product-card group flex h-full flex-col">
+  <div class="product-media">
 
-  <div class="product-media relative aspect-[4/5] overflow-hidden">
-
-    <a href="{{ product.get_absolute_url }}" class="absolute inset-0 block">
+    <a href="{{ product.get_absolute_url }}" class="product-media-link" aria-label="{{ product.name }}">
       {% if product.primary_image %}
-        <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}"
-             onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'w-full h-full flex items-center justify-center text-2xl', style: 'color: var(--text-muted); opacity:.5', innerHTML: '<i class=&quot;fa-solid fa-seedling&quot;></i>'}))"
-             class="h-full w-full object-cover transition-transform duration-500 {% if product.is_sold_out %}grayscale opacity-70{% else %}group-hover:scale-105{% endif %}">
+        <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}" loading="lazy" decoding="async"
+             onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'product-media-placeholder', innerHTML: '<i class=&quot;fa-solid fa-seedling&quot;></i>'}))">
       {% else %}
-        <div class="flex h-full w-full items-center justify-center text-2xl" style="color: var(--text-muted); opacity:.5">
-          <i class="fa-solid fa-seedling"></i>
-        </div>
+        <div class="product-media-placeholder"><i class="fa-solid fa-seedling"></i></div>
       {% endif %}
     </a>
 
-    <div class="pointer-events-none absolute left-3 top-3 z-10 flex flex-col items-start gap-1.5">
+    <div class="product-card__badges">
       {% if product.discount_percent %}
-        <span class="rounded-full bg-red-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">
-          -%{{ product.discount_percent }}
-        </span>
+        <span class="product-card__badge product-card__badge--discount">-%{{ product.discount_percent }}</span>
       {% endif %}
       {% if product.display_badge %}
-        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm" style="background-color: var(--accent-plum);">
-          {{ product.display_badge }}
-        </span>
+        <span class="product-card__badge product-card__badge--label">{{ product.display_badge }}</span>
       {% endif %}
     </div>
 
@@ -39,40 +33,23 @@ instead of using hardcoded neutral/black colors.
             {% if product.is_sold_out %}disabled{% endif %}
             data-action="add-to-cart" data-product-id="{{ product.id }}"
             aria-label="Sepete Ekle"
-            class="absolute right-3 top-3 z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full shadow-md transition
-                   {% if product.is_sold_out %}cursor-not-allowed opacity-50{% else %}hover:scale-110 active:scale-95{% endif %}"
-            style="background-color: var(--bg-card); color: var(--accent-plum);">
-      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            class="product-card__add">
+      <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
       </svg>
     </button>
 
     {% if product.is_sold_out %}
-      <div class="absolute inset-0 flex items-center justify-center bg-wine-900/45">
-        <span class="rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide shadow-sm" style="background-color: var(--bg-card); color: var(--text-main);">
-          Tükendi
-        </span>
-      </div>
+      <div class="product-card__soldout"><span>Tükendi</span></div>
     {% endif %}
   </div>
 
-  <div class="product-info flex flex-1 flex-col">
-    <a href="{{ product.get_absolute_url }}"
-       class="product-name mb-1 block">
-      {{ product.name }}
-    </a>
+  <div class="product-info">
+    <a href="{{ product.get_absolute_url }}" class="product-name">{{ product.name }}</a>
 
-    {% if product.description %}
-      <p class="mb-3 text-[12px] leading-snug line-clamp-2" style="color: var(--text-muted);">
-        {{ product.description }}
-      </p>
-    {% endif %}
-
-    <div class="product-price-row mt-auto">
+    <div class="product-price-row">
       {% if product.is_sold_out %}
-        <span class="inline-block rounded-full px-2.5 py-1 text-[11px] font-semibold" style="background-color: var(--bg-main); color: var(--text-muted);">
-          Tükendi
-        </span>
+        <span class="product-card__unavailable">Tükendi</span>
       {% else %}
         {% with pr=product.price_range opr=product.original_price_range %}
           {% if pr %}
@@ -81,18 +58,18 @@ instead of using hardcoded neutral/black colors.
               <span class="price-unit">₺</span>
             </span>
           {% elif product.has_contact_tier %}
-            <span class="text-[14.5px] font-bold text-emerald-600">Teklif Al</span>
+            <span class="product-card__quote">Teklif Al</span>
           {% else %}
-            <span class="text-[14.5px] font-bold" style="color: var(--text-main);">-</span>
+            <span class="price-display"><span class="price-value">-</span></span>
           {% endif %}
           {% if opr %}
-            <span class="price-display price-display-muted" style="font-size: 12px; opacity: .75;">
+            <span class="price-display price-display-muted">
               <span class="price-value">{{ opr.min|floatformat:"-2" }} - {{ opr.max|floatformat:"-2" }}</span>
               <span class="price-unit">₺</span>
             </span>
           {% endif %}
           {% if product.has_contact_tier and pr %}
-            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50">
+            <span class="product-card__quote-pill">
               <i class="fa-brands fa-whatsapp"></i> {{ product.contact_tier.min_quantity }}+ Teklif Al
             </span>
           {% endif %}
