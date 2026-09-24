@@ -2316,14 +2316,14 @@ html[dir="rtl"] .footer-links a:hover {
   pointer-events: none;
 }
 
-.view-all-card {
+/*.view-all-card {
   flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: rgba(74, 15, 36, 0.45);
   pointer-events: none;
-}
+}*/
 
 .product-card__soldout span {
   padding: 0.25rem 0.75rem;
