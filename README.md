@@ -112,7 +112,7 @@ The project follows a modular Django architecture, keeping application logic, te
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Riddlerf8/aspiz-flowers-website.git
+git clone https://github.com/Vindelor/aspiz-flowers-website.git
 cd aspiz-flowers-website
 ```
 
