@@ -105,3 +105,39 @@ def register_code_verify_failure(request, user_id):
 
 def clear_code_verify_failures(request, user_id):
     cache.delete(_code_verify_key(request, user_id))
+
+
+# --- WhatsApp/SMS gönderim limitleri (para harcayan işlem!) -----------------
+# Her kod gönderimi Meta'ya ücret yazar. Aşağıdaki limitler, bir betiğin
+# yüzlerce farklı numaraya (ya da tek bir kurbana) mesaj yağdırıp faturayı
+# şişirmesini engeller. Sayaçlar IP'ye göre VE numaraya göre (tüm IP'ler
+# toplamı) tutulur; numara anahtarı canonical_phone_key() ile üretilmelidir.
+OTP_RESEND_COOLDOWN_SECONDS = 60
+OTP_SEND_IP_MAX = 10
+OTP_SEND_IP_WINDOW_SECONDS = 60 * 60
+OTP_SEND_PHONE_MAX = 5
+OTP_SEND_PHONE_WINDOW_SECONDS = 60 * 60
+
+
+def _bump(key, window):
+    if cache.add(key, 1, window):
+        return 1
+    try:
+        return cache.incr(key)
+    except ValueError:  # anahtar tam bu sırada süresi doldu
+        cache.set(key, 1, window)
+        return 1
+
+
+def otp_send_allowed(request, phone_key):
+    """True ise gönderime izin var (ve sayaç artırıldı)."""
+    if not cache.add(f"otp_cooldown:{phone_key}", 1, OTP_RESEND_COOLDOWN_SECONDS):
+        return False
+    ip_count = _bump(f"otp_ip:{_client_ip(request)}", OTP_SEND_IP_WINDOW_SECONDS)
+    phone_count = _bump(f"otp_phone:{phone_key}", OTP_SEND_PHONE_WINDOW_SECONDS)
+    return ip_count <= OTP_SEND_IP_MAX and phone_count <= OTP_SEND_PHONE_MAX
+
+
+def release_otp_cooldown(phone_key):
+    """Gönderim başarısız olduysa kullanıcı 60 sn boşuna beklemesin."""
+    cache.delete(f"otp_cooldown:{phone_key}")

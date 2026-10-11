@@ -22,6 +22,15 @@ def product_list(request):
     else:
         active_filter = ""
 
+    # Ana sayfadaki rozet bölümlerinin "Tümünü Gör" linki (?badge=editor vb.)
+    badge_filter = request.GET.get("badge") or ""
+    badge_filter_label = ""
+    if badge_filter and badge_filter in Product.Badge.values and badge_filter != Product.Badge.NONE:
+        products = products.filter(badge=badge_filter).order_by("-created_at")
+        badge_filter_label = dict(Product.Badge.choices)[badge_filter]
+    else:
+        badge_filter = ""
+
     category_slug = request.GET.get("category")
     if category_slug:
         products = products.filter(category__slug=category_slug)
@@ -40,6 +49,8 @@ def product_list(request):
         "active_category": category_slug,
         "query": query or "",
         "active_filter": active_filter,
+        "badge_filter": badge_filter,
+        "badge_filter_label": badge_filter_label,
     }
     return render(request, "products/list.html", context)
 

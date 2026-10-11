@@ -175,7 +175,6 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   justify-content: center;
   overflow: hidden;
   color: #ffffff;
-  border-bottom: 1px solid var(--border-color);
   text-align: center;
   background: var(--bg-main);
 }
@@ -810,20 +809,30 @@ html.dark-mode .glass-floating-oval .search-box {
 .login-modal-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
+  background: linear-gradient(160deg, rgba(38, 14, 23, 0.55) 0%, rgba(140, 42, 75, 0.35) 100%);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
 }
 
 .login-modal-panel {
   position: relative;
   width: 100%;
-  max-width: 960px;
-  max-height: min(90vh, 640px);
+  max-width: 440px;
+  max-height: 90vh;
   overflow: hidden;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 20px 50px rgba(20, 8, 14, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
   transform: translateY(16px) scale(0.98);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.dark-mode .login-modal-panel {
+  background: rgba(30, 13, 19, 0.72);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .login-modal.active .login-modal-panel {
@@ -837,8 +846,9 @@ html.dark-mode .glass-floating-oval .search-box {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-main);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
   color: var(--text-main);
   cursor: pointer;
   display: flex;
@@ -851,96 +861,177 @@ html.dark-mode .glass-floating-oval .search-box {
 .login-modal-close:hover {
   background-color: var(--accent-gold);
   color: #ffffff;
+  border-color: var(--accent-gold);
 }
 
 .login-modal-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 90vh;
-  max-height: 640px;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
 }
 
 .login-brand-panel {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 2.25rem 2.5rem;
-  color: #ffffff;
-  background: linear-gradient(160deg, rgba(38, 14, 23, 0.92) 0%, rgba(140, 42, 75, 0.88) 100%);
-  overflow: hidden;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 2.5rem 2.5rem 0.5rem;
+  text-align: center;
+  color: var(--text-main);
+  background: transparent;
 }
 
 .brand-panel-top {
-  font-size: 0.8125rem;
+  position: absolute;
+  top: 1.1rem;
+  left: 1.5rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.5px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-muted);
+  opacity: 0.8;
 }
 
 .brand-panel-center {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .brand-logo-lockup {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 0.75rem;
+  gap: 10px;
+  margin-bottom: 0.5rem;
 }
 
 .site-logo-auth {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
 }
 
 .login-brand-panel .logo-wordmark-name {
-  color: #fff;
+  color: var(--text-main);
 }
 
 .login-brand-panel .logo-wordmark-sub {
-  color: var(--accent-gold);
+  color: var(--accent-gold-text, var(--accent-gold));
 }
 
 .brand-panel-center h2 {
   font-family: 'Bodoni Moda', 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 2.1rem;
+  font-size: 1.8rem;
   font-weight: 500;
+  color: var(--text-main);
 }
 
 .brand-panel-desc {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.75);
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-muted);
   max-width: 320px;
 }
 
 .brand-panel-bottom {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 0 2.5rem 1.25rem;
+  opacity: 0.85;
 }
 
 .login-form-panel {
-  height: 100%;
-  background-color: var(--bg-main);
-  padding: 2.5rem 2.5rem 2rem;
+  background-color: transparent;
+  padding: 1.5rem 2.5rem 2rem;
   overflow-y: auto;
+}
+
+/* ---- Desktop layout: wider two-column card, like a real desktop dialog
+   instead of a narrow phone-width card floating in the middle of the
+   screen. The brand side gets its own colored glass tint (fixed white
+   text, independent of light/dark mode) since it's no longer sitting on
+   the same light/dark card background as the form fields. ---- */
+@media screen and (min-width: 861px) {
+  .login-modal-panel {
+    max-width: 920px;
+  }
+
+  .login-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    max-height: min(88vh, 620px);
+  }
+
+  .login-brand-panel {
+    align-items: flex-start;
+    justify-content: space-between;
+    text-align: left;
+    height: 100%;
+    padding: 2.25rem 2.5rem;
+    color: #ffffff;
+    background: linear-gradient(160deg, rgba(140, 42, 75, 0.55) 0%, rgba(38, 14, 23, 0.65) 100%);
+    border-inline-end: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .brand-panel-top {
+    position: static;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .brand-panel-center {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .login-brand-panel .logo-wordmark-name {
+    color: #ffffff;
+  }
+
+  .login-brand-panel .logo-wordmark-sub {
+    color: var(--accent-gold);
+  }
+
+  .brand-panel-center h2 {
+    color: #ffffff;
+    font-size: 2rem;
+  }
+
+  .brand-panel-desc {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .brand-panel-bottom {
+    justify-content: flex-start;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .login-form-panel {
+    height: 100%;
+    padding: 2.5rem 2.75rem 2rem;
+  }
 }
 
 .auth-tabs {
   display: flex;
   gap: 4px;
-  background-color: var(--bg-card);
+  background-color: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-pill);
   padding: 4px;
   margin-bottom: 1.75rem;
+}
+
+html.dark-mode .auth-tabs {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .auth-tab {
@@ -958,9 +1049,14 @@ html.dark-mode .glass-floating-oval .search-box {
 }
 
 .auth-tab.active {
-  background-color: var(--bg-main);
+  background-color: rgba(255, 255, 255, 0.55);
+  color: var(--accent-plum);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+html.dark-mode .auth-tab.active {
+  background-color: rgba(255, 255, 255, 0.14);
   color: var(--accent-gold);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .auth-panel[hidden] {
@@ -1038,12 +1134,13 @@ html.dark-mode .glass-floating-oval .search-box {
 
 .form-group input[type="email"],
 .form-group input[type="password"],
-.form-group input[type="text"] {
+.form-group input[type="text"],
+.form-group input[type="tel"] {
   width: 100%;
-  padding: 0.8rem 1rem;
-  background-color: rgba(255, 255, 255, 0.6);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  padding: 0.85rem 1.1rem;
+  background-color: rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-pill);
   color: var(--text-main);
   font-family: inherit;
   font-size: 0.9rem;
@@ -1053,8 +1150,10 @@ html.dark-mode .glass-floating-oval .search-box {
 
 html.dark-mode .form-group input[type="email"],
 html.dark-mode .form-group input[type="password"],
-html.dark-mode .form-group input[type="text"] {
-  background-color: rgba(0, 0, 0, 0.25);
+html.dark-mode .form-group input[type="text"],
+html.dark-mode .form-group input[type="tel"] {
+  background-color: rgba(0, 0, 0, 0.22);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .form-group .input-with-icon input {
@@ -1067,7 +1166,12 @@ html.dark-mode .form-group input[type="text"] {
 
 .form-group input:focus {
   border-color: var(--accent-gold);
+  background-color: rgba(255, 255, 255, 0.4);
   box-shadow: 0 0 0 3px rgba(217, 127, 136, 0.25);
+}
+
+html.dark-mode .form-group input:focus {
+  background-color: rgba(0, 0, 0, 0.32);
 }
 
 .form-group input::placeholder {
@@ -1135,7 +1239,7 @@ html.dark-mode .form-group input[type="text"] {
   margin: 0;
   border: 1px solid var(--accent-gold);
   border-radius: 4px;
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.3);
   cursor: pointer;
   flex: 0 0 16px;
   transition: var(--transition);
@@ -1169,10 +1273,11 @@ html.dark-mode .form-group input[type="text"] {
   gap: 0.5rem;
   min-height: var(--btn-height);
   padding: 1rem 1.15rem;
-  background-color: transparent;
-  color: var(--text-main);
-  border: 1px solid var(--accent-gold);
-  border-radius: var(--btn-radius);
+  background: linear-gradient(135deg, var(--accent-plum) 0%, var(--accent-gold) 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 8px 20px rgba(140, 42, 75, 0.3);
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -1183,9 +1288,9 @@ html.dark-mode .form-group input[type="text"] {
 }
 
 .login-btn:hover {
-  background-color: var(--accent-gold);
-  color: #170a0f;
-  transform: none;
+  filter: brightness(1.08);
+  box-shadow: 0 10px 26px rgba(140, 42, 75, 0.4);
+  transform: translateY(-1px);
 }
 
 .login-btn.is-loading .btn-label::after {
@@ -1261,9 +1366,13 @@ html.dark-mode .form-group input[type="text"] {
   text-align: center;
   margin-top: 1.5rem;
   padding-top: 1.25rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
   font-size: 0.875rem;
   color: var(--text-muted);
+}
+
+html.dark-mode .register-link {
+  border-top-color: rgba(255, 255, 255, 0.1);
 }
 
 .register-link a {
@@ -1278,17 +1387,99 @@ html.dark-mode .form-group input[type="text"] {
   text-decoration: underline;
 }
 
+/* ---- Mobile (<861px): let the WHOLE modal scroll as one block instead of
+   clipping it to the screen height and scrolling only the inner form panel
+   (which looked like "half the page" scrolling). Also scale text/inputs/
+   buttons down to normal mobile sizes instead of the desktop sizes. ---- */
 @media screen and (max-width: 860px) {
+  .login-modal {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 1.5rem 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .login-modal-panel {
+    max-height: none;
+    margin: auto;
+  }
+
   .login-modal-grid {
-    grid-template-columns: 1fr;
-    min-height: unset;
+    max-height: none;
+  }
+
+  .login-form-panel {
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .login-modal-panel {
+    border-radius: 22px;
   }
   .login-brand-panel {
-    display: none;
+    padding: 1.75rem 1.5rem 0.35rem;
+    gap: 0.25rem;
+  }
+  .site-logo-auth {
+    width: 26px;
+    height: 26px;
+  }
+  .brand-panel-center h2 {
+    font-size: 1.35rem;
+  }
+  .brand-panel-desc {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+  .brand-panel-bottom {
+    padding: 0 1.5rem 0.85rem;
+    font-size: 0.7rem;
   }
   .login-form-panel {
-    max-height: 90vh;
-    padding: 2.25rem 1.5rem 1.75rem;
+    padding: 1rem 1.5rem 1.5rem;
+  }
+  .auth-tabs {
+    padding: 3px;
+    margin-bottom: 1.25rem;
+  }
+  .auth-tab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  .auth-panel h1 {
+    font-size: 1.4rem;
+  }
+  .auth-panel > p {
+    font-size: 0.82rem;
+    margin-bottom: 1.1rem;
+  }
+  .form-group label {
+    font-size: 0.8rem;
+  }
+  .form-group input[type="email"],
+  .form-group input[type="password"],
+  .form-group input[type="text"],
+  .form-group input[type="tel"] {
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+  }
+  .input-with-icon input {
+    padding-inline-start: 2.4rem;
+  }
+  .input-with-icon .field-icon {
+    font-size: 0.8rem;
+  }
+  .login-btn {
+    min-height: 46px;
+    padding: 0.8rem 1rem;
+    font-size: 0.7rem;
+  }
+  .register-link {
+    font-size: 0.8rem;
+    margin-top: 1.15rem;
+    padding-top: 1rem;
   }
 }
 
@@ -2130,7 +2321,7 @@ html[dir="rtl"] .footer-links a:hover {
   }
 
   .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: var(--card-gap);
     row-gap: 6px;
   }
@@ -2316,14 +2507,14 @@ html[dir="rtl"] .footer-links a:hover {
   pointer-events: none;
 }
 
-.view-all-card {
+/*.view-all-card {
   flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: rgba(74, 15, 36, 0.45);
   pointer-events: none;
-}
+}*/
 
 .product-card__soldout span {
   padding: 0.25rem 0.75rem;
@@ -2449,7 +2640,7 @@ html.dark-mode .product-card__quote-pill {
   }
 
   .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: var(--card-gap);
     row-gap: 6px;
   }
@@ -3469,4 +3660,3 @@ html.dark-mode [data-qty-input] {
 .auth-note { text-align: center; font-size: .85rem; color: var(--text-muted); margin-top: 1.25rem; }
 
 .auth-note a { color: var(--accent-gold); font-weight: 600; text-decoration: underline; }
-

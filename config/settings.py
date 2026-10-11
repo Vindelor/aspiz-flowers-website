@@ -114,11 +114,10 @@ DATABASES = {
 
 AUTH_USER_MODEL = "accounts.User"
 
-# EmailOrUsernameBackend lets people log in with their email address (the
-# login form only shows one "E-posta Adresi" field); ModelBackend stays as
-# a fallback so Django admin / username-based logins keep working.
+# Customer login/registration is phone+SMS-code only now (see
+# apps/accounts/views.py) and never checks a password, so ModelBackend is
+# only actually exercised for Django admin / staff logins.
 AUTHENTICATION_BACKENDS = [
-    "accounts.backends.EmailOrUsernameBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
@@ -215,21 +214,21 @@ WHATSAPP_ADMIN_PHONE = os.getenv("WHATSAPP_ADMIN_PHONE", "")
 WHATSAPP_ORDER_TEMPLATE_NAME = os.getenv("WHATSAPP_ORDER_TEMPLATE_NAME", "new_order_alert")
 WHATSAPP_TEMPLATE_LANGUAGE = os.getenv("WHATSAPP_TEMPLATE_LANGUAGE", "tr")
 
+# --- WhatsApp OTP (login/register one-time codes) ---
+WHATSAPP_OTP_TEMPLATE_NAME = os.getenv("WHATSAPP_OTP_TEMPLATE_NAME", "login_code")
+
 # Base URL used to build the order link sent inside the WhatsApp message
 # (points staff to the admin page for that order). Set this to your real
 # domain in production, e.g. https://cicekdeposu.com
 SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://127.0.0.1:8000")
 
-# --- Email (used for "şifremi unuttum" password reset AND the email login
-# codes sent by accounts.views.request_login_code_view) ---
-# If EMAIL_HOST/EMAIL_HOST_USER/EMAIL_HOST_PASSWORD aren't all set yet
-# (waiting on real SMTP credentials), fall back to Django's console backend
-# — those emails print to the server log instead of erroring out, so the
-# rest of the site keeps working while SMTP isn't configured yet. This
-# means login codes won't reach real inboxes until EMAIL_HOST/USER/PASSWORD
-# are set in .env — check `python manage.py runserver`'s console output to
-# grab a code while testing.
-# See .env.example for where to get these from your email provider.
+# --- Email ---
+# No longer used by login/registration (that's phone + SMS code now, see
+# apps.accounts.sms) — kept only because a couple of unwired Django
+# auth views/templates for password reset still reference it, and because
+# EMAIL_BACKEND must be set to *something*. If EMAIL_HOST/EMAIL_HOST_USER/
+# EMAIL_HOST_PASSWORD aren't all set, this falls back to Django's console
+# backend so nothing errors out.
 _email_configured = all([
     os.getenv("EMAIL_HOST"),
     os.getenv("EMAIL_HOST_USER"),
@@ -251,15 +250,3 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@aspizflowers.com"
 # Password reset links expire after this long (Django default is 3 days;
 # kept explicit here so it's easy to find/tune).
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24 * 3  # 3 days, in seconds
-
-# --- Google OAuth login ("Google ile giriş yap") ---
-# Blank until real values are added to .env — GOOGLE_OAUTH_ENABLED reflects
-# whether both are set, so templates/views can hide the button until then
-# instead of showing a broken login option.
-GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "")
-GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "")
-GOOGLE_OAUTH_ENABLED = bool(GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET)
-# Must exactly match an "Authorized redirect URI" configured for this
-# OAuth client in Google Cloud Console -> APIs & Services -> Credentials.
-
-GOOGLE_OAUTH_REDIRECT_URI = f"{SITE_BASE_URL}/accounts/google/callback/"
