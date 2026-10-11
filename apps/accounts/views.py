@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.db import transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from apps.orders.models import Order
 
@@ -22,7 +23,9 @@ from .forms import (
     LoginVerifyForm,
     ProfileForm,
     RegisterForm,
+    canonical_phone_key,
     phone_lookup_candidates,
+    stale_unverified_users,
 )
 from .models import LoginCode
 from .ratelimit import (
@@ -32,7 +35,9 @@ from .ratelimit import (
     is_code_verify_locked,
     is_login_locked,
     is_register_rate_limited,
+    otp_send_allowed,
     register_attempt,
+    release_otp_cooldown,
     register_code_request,
     register_code_verify_failure,
     register_login_failure,
@@ -88,7 +93,9 @@ def login_request_view(request):
         # Any one representation is fine as the rate-limit/lockout key —
         # they all refer to the same number, and the key just needs to be
         # stable across requests for the same phone.
-        lookup_key = next(iter(phone_candidates))
+        # Kararlı (E.164) anahtar: set'ten rastgele eleman almak aynı numara için
+        # farklı sayaçlar üretip limiti aşmaya izin veriyordu.
+        lookup_key = canonical_phone_key(form.cleaned_data["phone"])
 
         # Locked/limited by phone — this is the only identifier in the
         # login flow now, so it doubles as the secret being guessed.
@@ -109,9 +116,14 @@ def login_request_view(request):
         clear_login_failures(request, lookup_key)
         register_code_request(request, lookup_key)
 
+        # Para harcayan işlem: IP başına / numara başına / 60 sn bekleme limiti.
+        if not otp_send_allowed(request, lookup_key):
+            return _auth_error(request, {"__all__": [CODE_REQUEST_RATE_LIMIT_MESSAGE]}, 429)
+
         try:
             login_code = _issue_login_code(user)
         except Exception:
+            release_otp_cooldown(lookup_key)
             return _auth_error(request, {"__all__": [_CODE_SEND_FAILED_MESSAGE]}, 503)
         request.session["login_code_id"] = login_code.pk
         if _is_ajax(request):
@@ -180,7 +192,15 @@ def login_verify_view(request):
     clear_code_verify_failures(request, user_id)
     request.session.pop("login_code_id", None)
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-    return _auth_success(request, {"redirect_url": request.POST.get("next") or reverse("core:home")})
+
+    # `next` kullanıcıdan geliyor: yalnızca bu siteye ait adreslere yönlendir
+    # (open redirect önlemi).
+    next_url = request.POST.get("next") or ""
+    if not url_has_allowed_host_and_scheme(
+        next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        next_url = ""
+    return _auth_success(request, {"redirect_url": next_url or reverse("core:home")})
 
 
 def _auth_success(request, data):
@@ -221,6 +241,17 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             phone = form.cleaned_data["phone"]
+
+            # Para harcayan işlem: kullanıcı oluşturmadan ÖNCE limiti kontrol et.
+            if not otp_send_allowed(request, phone):
+                if ajax:
+                    return JsonResponse(
+                        {"success": False, "errors": {"__all__": [CODE_REQUEST_RATE_LIMIT_MESSAGE]}},
+                        status=429,
+                    )
+                messages.error(request, CODE_REQUEST_RATE_LIMIT_MESSAGE)
+                return render(request, "accounts/register.html", {"form": RegisterForm(), "next": next_url})
+
             # A previous registration with this phone may exist but never
             # got verified (RegisterForm.clean_phone only blocks *active*
             # accounts, so it let this one through). Clear it out first —
@@ -228,7 +259,10 @@ def register_view(request):
             # an IntegrityError on save, and the person who mistyped/never
             # got their first code would be permanently locked out of that
             # number.
-            User.objects.filter(phone=phone, is_active=False).delete()
+            # Yalnızca doğrulanmamış eski kayıtlar silinir; yönetici tarafından
+            # kapatılmış / siparişi olan hesaplar silinmez (clean_phone zaten
+            # bunlar için kayıt açılmasını engelliyor).
+            stale_unverified_users(phone).delete()
 
             user = form.save(commit=False)
             # Held inactive — and NOT logged in — until the SMS code is
@@ -244,6 +278,7 @@ def register_view(request):
                 # Nobody could receive the code, so don't leave a dangling
                 # unverifiable account sitting on this phone number.
                 user.delete()
+                release_otp_cooldown(phone)
                 if ajax:
                     return JsonResponse({"success": False, "errors": {"__all__": [_CODE_SEND_FAILED_MESSAGE]}}, status=503)
                 messages.error(request, _CODE_SEND_FAILED_MESSAGE)

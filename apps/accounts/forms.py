@@ -54,9 +54,39 @@ def phone_lookup_candidates(raw_phone):
         if phonenumbers.is_valid_number(parsed):
             e164 = phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
             candidates.add(re.sub(r"\D", "", e164))
+            # Eski kayıtlar "05551234567" (başında 0) veya "5551234567"
+            # biçiminde saklanmış olabilir. Kullanıcı bugün "+90 555 ..."
+            # yazsa bile bunlarla eşleşebilmeli.
+            national = str(parsed.national_number)
+            candidates.add(national)
+            candidates.add("0" + national)
     except phonenumbers.NumberParseException:
         pass
     return candidates
+
+
+def canonical_phone_key(raw_phone):
+    """
+    Tek ve KARARLI bir anahtar (E.164 rakamları): rate-limit sayaçları için.
+    "0555 123 45 67" ve "+90 555 123 45 67" aynı numaradır, aynı sayacı
+    paylaşmalıdır; yoksa saldırgan yazım biçimini değiştirerek limiti aşar.
+    """
+    try:
+        parsed = phonenumbers.parse(raw_phone.strip(), DEFAULT_PHONE_REGION)
+        if phonenumbers.is_valid_number(parsed):
+            return re.sub(r"\D", "", phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164))
+    except phonenumbers.NumberParseException:
+        pass
+    return re.sub(r"\D", "", raw_phone)
+
+
+def stale_unverified_users(phone):
+    """
+    Kayıt olmuş ama kodu hiç doğrulamamış (hiç giriş yapmamış, siparişi
+    olmayan) pasif hesaplar. Yönetici tarafından kapatılmış (giriş yapmış
+    veya siparişi olan) hesaplar BUNA DAHİL DEĞİLDİR.
+    """
+    return User.objects.filter(phone=phone, is_active=False, last_login__isnull=True, orders__isnull=True)
 
 
 def _unique_username_from_phone(phone_digits):
@@ -101,7 +131,22 @@ class RegisterForm(forms.ModelForm):
         # doesn't deserve to permanently squat on the number.
         if User.objects.filter(phone=phone, is_active=True).exists():
             raise forms.ValidationError("Bu telefon numarası zaten kayıtlı.")
+        # Pasif ama "doğrulanmamış kayıt" olmayan hesap (ör. yönetici kapatmış):
+        # bu numarayla yeniden kayıt açılmasın.
+        blocked = User.objects.filter(phone=phone, is_active=False).exclude(
+            pk__in=stale_unverified_users(phone).values("pk")
+        )
+        if blocked.exists():
+            raise forms.ValidationError("Bu telefon numarası kullanılamıyor. Lütfen bizimle iletişime geçin.")
         return phone
+
+    def validate_unique(self):
+        # ModelForm'un otomatik "phone benzersiz olmalı" kontrolü, doğrulanmamış
+        # eski bir kayıt varsa kullanıcıyı o numaradan SONSUZA DEK kilitliyordu
+        # (register_view'daki temizlik formdan SONRA çalışıyor). Benzersizlik
+        # artık clean_phone (aktif/engelli hesaplar) + register_view (eski
+        # doğrulanmamış satırların silinmesi) + DB unique kısıtı ile korunuyor.
+        pass
 
     def save(self, commit=True):
         user = super().save(commit=False)

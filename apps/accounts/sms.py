@@ -1,81 +1,68 @@
-"""
-Sends one-time login/verification codes via SMS using the Netgsm REST v2 API
-(chosen for Turkish numbers — cheaper and faster delivery than international
-providers, and no sender-ID restrictions to fight with).
-
-One-time setup (do this in your Netgsm panel before this works):
-1. netgsm.com.tr -> hesabınıza giriş yapın -> Ayarlar -> API İşlemleri:
-   enable REST API access for your account (and add your server's IP if
-   Netgsm asks for an allow-list).
-2. Get/approve an SMS header (başlık) — the sender name recipients see
-   instead of a phone number. This can take a day or two to approve.
-3. Put NETGSM_USERCODE, NETGSM_PASSWORD, NETGSM_HEADER in your .env — see
-   .env.example.
-
-Unlike apps/orders/whatsapp.py (a best-effort "new order" notification that
-fails silently so checkout never breaks), a failed OTP send has nowhere to
-hide: apps/accounts/views.py relies on send_otp_sms raising on any failure,
-so the pending LoginCode row gets rolled back and the person sees a real
-error instead of waiting forever for a code that was never sent.
-"""
 import logging
+import re
 
+import phonenumbers
 import requests
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-SEND_ENDPOINT = "https://api.netgsm.com.tr/sms/rest/v2/send"
-
-# Netgsm's own result code for /sms/rest/v2/send — "00" is the only success
-# code, anything else (bad credentials, header not approved yet, malformed
-# number, etc.) is a rejection.
-_SUCCESS_CODE = "00"
-
 
 class SmsSendError(Exception):
-    """Raised when Netgsm rejects the SMS, or the request itself fails."""
+    """Raised when the WhatsApp OTP could not be sent."""
 
 
-def send_otp_sms(phone_digits, code):
-    """
-    Sends `code` to `phone_digits` (E.164 digits with no leading '+', e.g.
-    "905551234567" — the same shape phone numbers are stored in; see
-    apps/accounts/forms.py). Raises SmsSendError on any failure.
-    """
-    if not (settings.NETGSM_USERCODE and settings.NETGSM_PASSWORD and settings.NETGSM_HEADER):
-        logger.error("SMS OTP not sent: Netgsm settings are not configured (.env).")
-        raise SmsSendError("Netgsm ayarları (.env) henüz yapılandırılmamış.")
+def _to_whatsapp_number(raw_phone):
+    """'05551234567' یا '905551234567' -> '905551234567' (بدون +)."""
+    try:
+        parsed = phonenumbers.parse(str(raw_phone).strip(), "TR")
+        if phonenumbers.is_valid_number(parsed):
+            return re.sub(r"\D", "", phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164))
+    except phonenumbers.NumberParseException:
+        pass
+    return None
 
+
+def send_otp_sms(phone, code):
+    if not (settings.WHATSAPP_PHONE_NUMBER_ID and settings.WHATSAPP_ACCESS_TOKEN):
+        logger.error("WhatsApp OTP not sent: WhatsApp settings are not configured (.env).")
+        raise SmsSendError("WhatsApp ayarları (.env) yapılandırılmamış.")
+
+    to = _to_whatsapp_number(phone)
+    if not to:
+        raise SmsSendError("Geçersiz telefon numarası.")
+
+    url = (
+        f"https://graph.facebook.com/{settings.WHATSAPP_API_VERSION}"
+        f"/{settings.WHATSAPP_PHONE_NUMBER_ID}/messages"
+    )
     payload = {
-        "msgheader": settings.NETGSM_HEADER,
-        "encoding": "TR",
-        # Transactional/security code, not a commercial message — "0" skips
-        # the İYS commercial-messaging filter, which doesn't apply here.
-        "iysfilter": "0",
-        "messages": [
-            {"msg": f"Aspiz Flowers giris kodunuz: {code}", "no": phone_digits},
-        ],
+        "messaging_product": "whatsapp",
+        "to": to,
+        "type": "template",
+        "template": {
+            "name": settings.WHATSAPP_OTP_TEMPLATE_NAME,
+            "language": {"code": settings.WHATSAPP_TEMPLATE_LANGUAGE},
+            "components": [
+                {"type": "body", "parameters": [{"type": "text", "text": code}]},
+                {
+                    "type": "button",
+                    "sub_type": "url",
+                    "index": "0",
+                    "parameters": [{"type": "text", "text": code}],
+                },
+            ],
+        },
     }
+    headers = {"Authorization": f"Bearer {settings.WHATSAPP_ACCESS_TOKEN}"}
 
     try:
-        response = requests.post(
-            SEND_ENDPOINT,
-            json=payload,
-            auth=(settings.NETGSM_USERCODE, settings.NETGSM_PASSWORD),
-            timeout=10,
-        )
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
         response.raise_for_status()
-        data = response.json()
     except requests.RequestException as exc:
-        logger.error("Netgsm SMS request failed: %s", exc)
-        raise SmsSendError("SMS gönderilemedi (bağlantı hatası).") from exc
-    except ValueError as exc:
-        logger.error("Netgsm SMS returned a non-JSON response.")
-        raise SmsSendError("SMS gönderilemedi (beklenmeyen yanıt).") from exc
-
-    if str(data.get("code")) != _SUCCESS_CODE:
-        logger.error("Netgsm SMS rejected: %s", data)
-        raise SmsSendError(f"SMS gönderilemedi (Netgsm kodu: {data.get('code')}).")
-
+        # Meta hatanın nedenini (geçersiz token, onaysız şablon, dil uyuşmazlığı...)
+        # cevabın gövdesinde döner; sadece "401 Client Error" yazmak teşhisi imkânsız kılıyor.
+        body = getattr(getattr(exc, "response", None), "text", "") or ""
+        logger.error("WhatsApp OTP request failed: %s | Meta response: %s", exc, body[:500])
+        raise SmsSendError("WhatsApp mesajı gönderilemedi.") from exc
     return True

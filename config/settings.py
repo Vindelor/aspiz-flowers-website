@@ -214,12 +214,8 @@ WHATSAPP_ADMIN_PHONE = os.getenv("WHATSAPP_ADMIN_PHONE", "")
 WHATSAPP_ORDER_TEMPLATE_NAME = os.getenv("WHATSAPP_ORDER_TEMPLATE_NAME", "new_order_alert")
 WHATSAPP_TEMPLATE_LANGUAGE = os.getenv("WHATSAPP_TEMPLATE_LANGUAGE", "tr")
 
-# --- Netgsm SMS API (login/register one-time codes) ---
-# Used by apps.accounts.sms to text the OTP code used for phone login and
-# registration. See .env.example for where each value comes from.
-NETGSM_USERCODE = os.getenv("NETGSM_USERCODE", "")
-NETGSM_PASSWORD = os.getenv("NETGSM_PASSWORD", "")
-NETGSM_HEADER = os.getenv("NETGSM_HEADER", "")
+# --- WhatsApp OTP (login/register one-time codes) ---
+WHATSAPP_OTP_TEMPLATE_NAME = os.getenv("WHATSAPP_OTP_TEMPLATE_NAME", "login_code")
 
 # Base URL used to build the order link sent inside the WhatsApp message
 # (points staff to the admin page for that order). Set this to your real
