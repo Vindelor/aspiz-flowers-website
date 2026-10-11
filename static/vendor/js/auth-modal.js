@@ -170,14 +170,14 @@
 
         if (data.success && data.step === "verify") {
           // Works for either panel: hide the form that was just submitted
-          // (login's email+phone form, or register's sign-up form) and
-          // reveal that same panel's own OTP form.
+          // (login's phone form, or register's sign-up form) and reveal
+          // that same panel's own OTP form.
           const panelEl = form.closest("[data-auth-panel]");
           const otpForm = panelEl?.querySelector("[data-otp-form]");
           form.setAttribute("hidden", "true");
           otpForm?.removeAttribute("hidden");
           const message = otpForm?.querySelector("[data-form-error]");
-          if (message) message.textContent = data.message || "Giriş kodu e-posta adresinize gönderildi.";
+          if (message) message.textContent = data.message || "Giriş kodu telefonunuza gönderildi.";
           otpForm?.querySelector("input[name=code]")?.focus();
           return;
         }

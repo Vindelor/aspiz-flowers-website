@@ -48,7 +48,7 @@
         <div class="auth-panel active" data-auth-panel="login" id="authPanelLogin"
           role="tabpanel" aria-labelledby="authTabLogin">
           <h1 id="authModalTitle">Hoş Geldiniz</h1>
-          <p>E-posta ve telefon numaranızla giriş kodu alın, şifreye gerek yok.</p>
+          <p>Telefon numaranızla giriş kodu alın, şifreye gerek yok.</p>
 
           <form method="post" action="{% url 'accounts:login' %}" data-auth-form>
             {% csrf_token %}
@@ -57,21 +57,11 @@
             <p class="error-message" data-form-error></p>
 
             <div class="form-group">
-              <label for="modalLoginEmail">E-posta Adresi</label>
-              <div class="input-with-icon">
-                <i class="fa-regular fa-envelope field-icon"></i>
-                <input type="email" id="modalLoginEmail" name="email" placeholder="ornek@sirket.com"
-                  autocomplete="email" required autofocus>
-              </div>
-              <span class="error-message" data-field-error="email"></span>
-            </div>
-
-            <div class="form-group">
               <label for="modalLoginPhone">Telefon Numarası</label>
               <div class="input-with-icon">
                 <i class="fa-solid fa-phone field-icon"></i>
-                <input type="tel" id="modalLoginPhone" name="phone" placeholder="05XX XXX XX XX"
-                  autocomplete="tel" required>
+                <input type="tel" id="modalLoginPhone" name="phone" placeholder="+90 5XX XXX XX XX"
+                  autocomplete="tel" required autofocus>
               </div>
               <span class="error-message" data-field-error="phone"></span>
             </div>
@@ -89,7 +79,7 @@
             <p class="error-message" data-form-error></p>
 
             <div class="form-group">
-              <label for="modalLoginCode">E-posta ile gönderilen 6 haneli kod</label>
+              <label for="modalLoginCode">Telefonunuza gönderilen 6 haneli kod</label>
               <div class="input-with-icon">
                 <i class="fa-solid fa-shield-halved field-icon"></i>
                 <input type="text" id="modalLoginCode" name="code" inputmode="numeric"
@@ -103,12 +93,6 @@
               <i class="fa-solid fa-arrow-right"></i>
             </button>
           </form>
-
-          <div class="auth-divider">Veya şununla devam et</div>
-
-          <button type="button" class="google-btn" disabled title="Google ile giriş yakında">
-            <i class="fa-brands fa-google"></i> Google ile Giriş Yap
-          </button>
 
           <div class="register-link">
             Henüz bir hesabınız yok mu?
@@ -138,20 +122,10 @@
             </div>
 
             <div class="form-group">
-              <label for="regEmail">E-posta Adresi</label>
-              <div class="input-with-icon">
-                <i class="fa-regular fa-envelope field-icon"></i>
-                <input type="email" id="regEmail" name="email" placeholder="ornek@sirket.com"
-                  autocomplete="email" required>
-              </div>
-              <span class="error-message" data-field-error="email"></span>
-            </div>
-
-            <div class="form-group">
               <label for="regPhone">Telefon Numarası</label>
               <div class="input-with-icon">
                 <i class="fa-solid fa-phone field-icon"></i>
-                <input type="tel" id="regPhone" name="phone" placeholder="05XX XXX XX XX"
+                <input type="tel" id="regPhone" name="phone" placeholder="+90 5XX XXX XX XX"
                   autocomplete="tel" required>
               </div>
               <span class="error-message" data-field-error="phone"></span>
@@ -176,7 +150,7 @@
             <p class="error-message" data-form-error></p>
 
             <div class="form-group">
-              <label for="regCode">E-posta ile gönderilen 6 haneli kod</label>
+              <label for="regCode">Telefonunuza gönderilen 6 haneli kod</label>
               <div class="input-with-icon">
                 <i class="fa-solid fa-shield-halved field-icon"></i>
                 <input type="text" id="regCode" name="code" inputmode="numeric"

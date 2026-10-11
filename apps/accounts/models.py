@@ -9,13 +9,13 @@ class User(AbstractUser):
     add store-specific fields later (phone, wholesale tier, etc.) without
     a painful migration to swap AUTH_USER_MODEL after the fact.
     """
-    # AbstractUser's email field isn't unique by default. Login is by email
-    # (EmailOrUsernameBackend) and RegisterForm already rejects duplicates,
-    # but without a DB-level constraint two accounts could still end up
-    # sharing an email (e.g. via admin or a future API), which makes
-    # email-based login pick an arbitrary one of them. Enforced here too.
-    email = models.EmailField("email address", unique=True, blank=True)
-    phone = models.CharField("Telefon", max_length=20, blank=True)
+    # Login/registration are phone-only now (no email step anywhere in the
+    # customer-facing flow) — phone is the real identity, so it carries the
+    # unique constraint email used to have. The email field is kept only
+    # because AbstractUser defines it; it's left blank and unused by every
+    # form/view, so no code should read or write it going forward.
+    email = models.EmailField("email address", blank=True)
+    phone = models.CharField("Telefon", max_length=20, unique=True)
     address = models.TextField("Adres", blank=True)
 
     def __str__(self):

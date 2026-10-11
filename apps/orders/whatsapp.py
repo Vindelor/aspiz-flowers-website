@@ -102,9 +102,12 @@ def send_order_notification(order):
         logger.warning("WhatsApp notification skipped for order #%s: WhatsApp settings not configured.", order.pk)
         return False
 
-    order_link = f"{settings.SITE_BASE_URL}/admin/orders/order/{order.pk}/change/"
     site_url = settings.SITE_BASE_URL.rstrip("/")
-    details_text = f"{order_link}\n{site_url}"
+    admin_path = settings.ADMIN_URL.strip("/")
+    order_link = f"{site_url}/{admin_path}/orders/order/{order.pk}/change/"
+    # Meta şablon parametrelerinde satır sonu (\n), tab veya 4+ ardışık boşluk
+    # YASAK (hata 132018) — bu yüzden iki parçayı boşlukla birleştiriyoruz.
+    details_text = f"{order_link} - {site_url}"
     customer_name = order.user.get_full_name() or order.user.username
 
     url = (

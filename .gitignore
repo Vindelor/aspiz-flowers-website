@@ -10,3 +10,4 @@ staticfiles/
 static/src/output.css
 .vscode/
 *.log
+wheels/
