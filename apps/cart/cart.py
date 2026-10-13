@@ -42,7 +42,37 @@ def get_cart(request):
     return cart
 
 
+def merge_guest_cart(user, guest_session_key):
+    """
+    login() rotates the session key, so the guest cart (stored under the OLD
+    key) can no longer be found by get_cart(). The login view reads the key
+    BEFORE login() and calls this right after it.
+    """
+    if not guest_session_key:
+        return
+    guest_cart = Cart.objects.filter(session_key=guest_session_key, user__isnull=True).first()
+    if not guest_cart:
+        return
+    cart, _ = Cart.objects.get_or_create(user=user)
+    for item in guest_cart.items.select_related("product"):
+        existing = cart.items.filter(product=item.product).first()
+        if existing:
+            existing.quantity = min(existing.quantity + item.quantity, max(item.product.stock_quantity, 1))
+            existing.save(update_fields=["quantity"])
+        else:
+            item.cart = cart
+            item.save(update_fields=["cart"])
+    guest_cart.delete()
+
+
+def has_price(product):
+    """True only if the product has at least one tier with a real price."""
+    return product.price_tiers.filter(price__isnull=False).exists()
+
+
 def add_to_cart(request, product, quantity=1):
+    if not has_price(product):
+        raise ValidationError(f"'{product.name}' için fiyat bilgisi yok. Lütfen WhatsApp'tan bize ulaşın.")
     cart = get_cart(request)
 
     if quantity < 1:

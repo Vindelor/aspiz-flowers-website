@@ -80,13 +80,26 @@ def canonical_phone_key(raw_phone):
     return re.sub(r"\D", "", raw_phone)
 
 
+def stored_phone_candidates(phone_digits):
+    """
+    E.164 rakamlarından ("905551234567") eski kayıt biçimlerini de içeren
+    tüm olası saklanma biçimlerini üretir ("05551234567", "5551234567" ...).
+    Eski hesaplar 0'lı biçimde saklandığı için yalnızca E.164 ile aramak,
+    aynı numarayla İKİNCİ bir hesap açılmasına izin veriyordu.
+    """
+    return phone_lookup_candidates("+" + re.sub(r"\D", "", phone_digits)) | {phone_digits}
+
+
 def stale_unverified_users(phone):
     """
     Kayıt olmuş ama kodu hiç doğrulamamış (hiç giriş yapmamış, siparişi
     olmayan) pasif hesaplar. Yönetici tarafından kapatılmış (giriş yapmış
     veya siparişi olan) hesaplar BUNA DAHİL DEĞİLDİR.
     """
-    return User.objects.filter(phone=phone, is_active=False, last_login__isnull=True, orders__isnull=True)
+    return User.objects.filter(
+        phone__in=stored_phone_candidates(phone), is_active=False, is_staff=False, is_superuser=False,
+        last_login__isnull=True, orders__isnull=True,
+    )
 
 
 def _unique_username_from_phone(phone_digits):
@@ -129,11 +142,12 @@ class RegisterForm(forms.ModelForm):
         # is_active=True only: an inactive row is a previous registration
         # that never verified its SMS code (see register_view), and
         # doesn't deserve to permanently squat on the number.
-        if User.objects.filter(phone=phone, is_active=True).exists():
+        candidates = stored_phone_candidates(phone)
+        if User.objects.filter(phone__in=candidates, is_active=True).exists():
             raise forms.ValidationError("Bu telefon numarası zaten kayıtlı.")
         # Pasif ama "doğrulanmamış kayıt" olmayan hesap (ör. yönetici kapatmış):
         # bu numarayla yeniden kayıt açılmasın.
-        blocked = User.objects.filter(phone=phone, is_active=False).exclude(
+        blocked = User.objects.filter(phone__in=candidates, is_active=False).exclude(
             pk__in=stale_unverified_users(phone).values("pk")
         )
         if blocked.exists():
@@ -187,13 +201,11 @@ class ProfileForm(forms.ModelForm):
             if name == "address":
                 field.widget.attrs.setdefault("rows", 3)
             field.widget.attrs.setdefault("autocomplete", "off")
-
-    def clean_phone(self):
-        phone = _clean_phone_number(self.cleaned_data["phone"])
-        exists = User.objects.filter(phone=phone).exclude(pk=self.instance.pk).exists()
-        if exists:
-            raise forms.ValidationError("Bu telefon numarası zaten kullanılıyor.")
-        return phone
+        # The phone number IS the account identity (login = SMS/WhatsApp code
+        # sent to it). Letting a logged-in user swap it for an unverified
+        # number allowed squatting other people's numbers. Shown read-only;
+        # ignored even if a crafted POST sends a different value.
+        self.fields["phone"].disabled = True
 
 
 class StyledPasswordResetForm(PasswordResetForm):

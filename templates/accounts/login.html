@@ -22,10 +22,14 @@
           <span class="btn-label">Giriş Yap</span>
           <i class="fa-solid fa-arrow-right"></i>
         </button>
+        <p class="auth-note" style="text-align: center; margin-top: 1rem;">
+          <a href="{% url 'accounts:login' %}">Numarayı değiştir veya kodu yeniden iste</a>
+        </p>
       </form>
       {% else %}
       <form method="post" action="{% url 'accounts:login' %}" class="account-form">
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next|default:'' }}">
 
         <div class="form-group">
           <label for="loginPhone">Telefon Numarası</label>

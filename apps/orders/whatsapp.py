@@ -69,7 +69,7 @@ def build_order_whatsapp_text(order):
 
     lines.append("")
     lines.append(f"Toplam: {order.total} TL")
-    lines.append("Sipariş detayı: https://www.aspizflowers.com")
+    lines.append(f"Sipariş detayı: {settings.SITE_BASE_URL.rstrip('/')}")
 
     return "\n".join(lines)
 
