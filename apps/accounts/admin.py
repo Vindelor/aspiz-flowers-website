@@ -26,6 +26,7 @@ class UserAdmin(BaseUserAdmin):
     # No "email" column: customer accounts never have one anymore (phone is
     # the real identity — see apps/accounts/models.py), so the column would
     # always show blank.
+
     list_display = ("username", "phone", "first_name", "last_name", "is_active", "is_staff")
     list_filter = BaseUserAdmin.list_filter
     search_fields = ("username", "phone", "first_name", "last_name")
@@ -37,3 +38,4 @@ class UserAdmin(BaseUserAdmin):
             "fields": ("username", "phone", "password1", "password2"),
         }),
     )
+

@@ -8,11 +8,13 @@ from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password, make_password
 from django.http import JsonResponse
+
 from django.db import IntegrityError, transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
+
 
 from apps.cart.cart import merge_guest_cart
 from apps.orders.models import Order
@@ -37,9 +39,11 @@ from .ratelimit import (
     is_code_verify_locked,
     is_login_locked,
     is_register_rate_limited,
+
     otp_send_check,
     register_attempt,
     rollback_otp_send,
+
     register_code_request,
     register_code_verify_failure,
     register_login_failure,
@@ -56,6 +60,7 @@ def _is_ajax(request):
 LOGIN_LOCKOUT_MESSAGE = "Çok fazla başarısız giriş denemesi yapıldı. Lütfen 15 dakika sonra tekrar deneyin."
 REGISTER_RATE_LIMIT_MESSAGE = "Çok fazla kayıt denemesi yapıldı. Lütfen daha sonra tekrar deneyin."
 CODE_REQUEST_RATE_LIMIT_MESSAGE = "Çok fazla kod talebi yapıldı. Lütfen biraz sonra tekrar deneyin."
+
 CODE_VERIFY_LOCKOUT_MESSAGE = "Çok fazla hatalı kod denemesi yapıldı. Lütfen 15 dakika sonra tekrar deneyin."
 OTP_COOLDOWN_MESSAGE = "Yeni kod için lütfen 60 saniye bekleyin."
 _PENDING_REGISTRATION_MESSAGE = (
@@ -86,6 +91,7 @@ def _remember_next(request):
         request.session["login_next"] = nxt
     else:
         request.session.pop("login_next", None)
+
 
 
 def _issue_login_code(user):
@@ -120,7 +126,9 @@ def login_request_view(request):
         return redirect("core:home")
     form = LoginRequestForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
+
         _remember_next(request)
+
         phone_candidates = phone_lookup_candidates(form.cleaned_data["phone"])
         # Any one representation is fine as the rate-limit/lockout key —
         # they all refer to the same number, and the key just needs to be
@@ -143,6 +151,7 @@ def login_request_view(request):
         user = User.objects.filter(phone__in=phone_candidates, is_active=True).first()
         if not user:
             register_login_failure(request, lookup_key)
+
             # Kayıt olmuş ama kodu hiç girmemiş kişi: "hesap yok" demek yerine
             # nasıl devam edeceğini söyle.
             if stale_unverified_users(lookup_key).exists():
@@ -171,11 +180,14 @@ def login_request_view(request):
             return _auth_error(request, {"__all__": [message]}, 429)
         register_code_request(request, lookup_key)
 
+
         try:
             login_code = _issue_login_code(user)
         except Exception:
+
             logger.exception("Login code could not be sent")
             rollback_otp_send(request, lookup_key)
+
             return _auth_error(request, {"__all__": [_CODE_SEND_FAILED_MESSAGE]}, 503)
         request.session["login_code_id"] = login_code.pk
         if _is_ajax(request):
@@ -250,12 +262,14 @@ def login_verify_view(request):
 
     clear_code_verify_failures(request, user_id)
     request.session.pop("login_code_id", None)
+
     stored_next = request.session.pop("login_next", "")
     guest_session_key = request.session.session_key  # login() rotates it
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
     merge_guest_cart(user, guest_session_key)
 
     next_url = _safe_next(request, request.POST.get("next")) or _safe_next(request, stored_next)
+
     return _auth_success(request, {"redirect_url": next_url or reverse("core:home")})
 
 
@@ -301,6 +315,7 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             phone = form.cleaned_data["phone"]
+
             _remember_next(request)
 
             # Para harcayan işlem: kullanıcı oluşturmadan ÖNCE limiti kontrol et.
@@ -310,6 +325,7 @@ def register_view(request):
                 if ajax:
                     return JsonResponse({"success": False, "errors": {"__all__": [message]}}, status=429)
                 messages.error(request, message)
+
                 return render(request, "accounts/register.html", {"form": RegisterForm(), "next": next_url})
 
             # A previous registration with this phone may exist but never
@@ -350,7 +366,9 @@ def register_view(request):
                 # Nobody could receive the code, so don't leave a dangling
                 # unverifiable account sitting on this phone number.
                 user.delete()
+
                 rollback_otp_send(request, phone, code_request_counted=False)
+
                 if ajax:
                     return JsonResponse({"success": False, "errors": {"__all__": [_CODE_SEND_FAILED_MESSAGE]}}, status=503)
                 messages.error(request, _CODE_SEND_FAILED_MESSAGE)

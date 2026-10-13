@@ -136,7 +136,9 @@ def register_code_verify_failure(request, user_id):
 
 def clear_code_verify_failures(request, user_id):
     cache.delete(_code_verify_key(request, user_id))
+
     cache.delete(_code_verify_ip_key(request, user_id))
+
 
 
 # --- WhatsApp/SMS gönderim limitleri (para harcayan işlem!) -----------------
@@ -159,6 +161,7 @@ def _bump(key, window):
     except ValueError:  # anahtar tam bu sırada süresi doldu
         cache.set(key, 1, window)
         return 1
+
 
 
 def otp_send_check(request, phone_key):
@@ -227,3 +230,4 @@ def rollback_otp_send(request, phone_key, code_request_counted=True):
 def release_otp_cooldown(phone_key):
     """Geriye dönük uyumluluk: yalnızca bekleme süresini kaldırır."""
     cache.delete(f"otp_cooldown:{phone_key}")
+

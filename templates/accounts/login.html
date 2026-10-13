@@ -29,7 +29,9 @@
       {% else %}
       <form method="post" action="{% url 'accounts:login' %}" class="account-form">
         {% csrf_token %}
+
         <input type="hidden" name="next" value="{{ next|default:'' }}">
+
 
         <div class="form-group">
           <label for="loginPhone">Telefon Numarası</label>
