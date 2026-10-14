@@ -2,9 +2,24 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-  
+
 
   <div class="space-y-6">
+    {# SEO: kısa H1 + ürün grubu çipleri (anasayfanın en üstü) #}
+    <section class="seo-top" aria-label="ASPIZ FLOWERS">
+      <h1>Toptan Yapay Çiçek ve Yapay Bitki Tedarikçisi | ASPIZ FLOWERS</h1>
+      <nav class="seo-chips" aria-label="Ürün grupları">
+        <a href="{% url 'products:by_category' 'cicekler' %}">Yapay gül</a>
+        <a href="{% url 'products:by_category' 'cicekler' %}">Yapay karanfil</a>
+        <a href="{% url 'products:by_category' 'cicekler' %}">Yapay kasımpatı</a>
+        <a href="{% url 'products:by_category' 'cicekler' %}">Yapay papatya</a>
+        <a href="{% url 'products:by_category' 'yesillikler' %}">Yapay yeşillik</a>
+        <a href="{% url 'products:by_category' 'sarmasiklar' %}">Yapay sarmaşık</a>
+        <a href="{% url 'products:by_category' 'agaclar' %}">Yapay ağaç</a>
+        <a href="{% url 'products:by_category' 'aranjmanlar' %}">Aranjman ürünleri</a>
+      </nav>
+    </section>
+
     {% include "components/product_section.html" with title="Yeni Ürünler" products=new_products bg="bg-white" see_all_url=new_url %}
     {% if deal_products %}
       {% include "components/product_section.html" with title="Fırsat Ürünleri" products=deal_products bg="bg-orange-50" see_all_url=deal_url %}
@@ -16,5 +31,52 @@
       {% include "components/product_section.html" with title=section.title products=section.products see_all_url=section.see_all_url %}
     {% endfor %}
   </div>
+
+  {# SEO metni: footer'ın hemen üstünde, katlanabilir (içerik HTML'de, Google okur) #}
+  <section class="seo-bottom">
+    <p><strong>ASPIZ FLOWERS</strong>, <mark>İstanbul İSTOÇ</mark>’ta yapay çiçek, yapay bitki ve dekoratif yeşillik ürünleri sunar. <strong>Toptan yapay çiçek</strong> arayan çiçekçiler, dekorasyon ve organizasyon firmaları ile yeniden satış yapan işletmeler; çiçek demetlerinden sarkıt bitkilere, aranjmanda kullanılabilecek parçalardan yapay ağaç seçeneklerine uzanan ürün gruplarını bir arada inceleyebilir. Sitede bazı ürünler için adetli alıma yönelik teklif bilgileri de yer alır. Böylece ürün çeşitlerini araştıran işletmeler, ihtiyaç duydukları miktarı da değerlendirmeye katabilir.</p>
+
+    <h2>Toptan Yapay Çiçek Modelleri ve Çeşitleri</h2>
+    <p>Ticari alımlarda ürün yelpazesi, yalnızca farklı çiçek adlarının bulunmasından ibaret değildir. Bir <em>çiçekçi</em> için demet halinde kullanılabilecek modeller öne çıkarken, bir mağaza ya da dekorasyon firması farklı renk ve formları birlikte değerlendirmek isteyebilir. ASPIZ FLOWERS’ın ürünleri arasında gül, karanfil, kasımpatı ve papatya görünümlü çiçeklerin yanı sıra buket ve aranjmanlarda kullanılabilen başka demetler de bulunur.</p>
+
+    <details class="seo-more">
+      <summary><span class="seo-more-open">Devamını oku</span><span class="seo-more-close">Daha az göster</span></summary>
+
+      <p>Bu çeşitlilik, işletmelerin tek bir ürün tipine bağlı kalmadan kendi çalışmalarına uygun seçeneklere bakmasını sağlar. Toplu alım planlayanlar için ürünün dal veya demet yapısı, ölçüsü ve içeriği önemlidir; aynı çiçek türü farklı modellerde sunulabilir. Bu nedenle toptan yapay çiçek çeşitlerini işletmenin hazırladığı ürün veya düzenleme bağlamında incelemek daha anlamlıdır.</p>
+
+      <h2>Toptan Yapay Bitki, Yeşillik ve Sarmaşık</h2>
+      <p>Yapay çiçek tedariği çoğu işletme için çiçek demetleriyle sınırlı kalmaz. Buketlerde kullanılan yeşillikler, sarkıt formdaki bitkiler ve mekân düzenlemesine yönelik daha büyük ürünler de aynı ürün planının parçası olabilir. ASPIZ FLOWERS’ın sitesinde yapay yaprak demetleri ve sarkıt bitki örnekleri yer alır; ürün yelpazesi yapay ağaç ve aranjmanla ilişkili seçenekleri de kapsar.</p>
+      <p>Bu ürün grupları farklı ticari ihtiyaçlara karşılık gelir. Çiçekçiler demetleri tamamlayacak yeşilliklere, <strong>organizasyon firmaları</strong> birden fazla düzenlemede kullanılabilecek çiçek ve bitki formlarına, mağazalar ise sergileyecekleri ürünlerle uyumlu dekoratif seçeneklere yönelebilir. Çiçek, bitki ve tamamlayıcı parçaların birlikte bulunması, işletmelerin ürün tedariğini kendi kullanım alanlarına göre ele almasına yardımcı olur.</p>
+
+      <h2>İşletmeler İçin Toptan Yapay Çiçek Tedariki</h2>
+      <p>ASPIZ FLOWERS’ın ürün yelpazesi, çiçekçilerden <strong>dekorasyon ve organizasyon firmalarına</strong>, mağazalardan <strong>yeniden satış yapan işletmelere</strong> kadar farklı ticari alıcıların inceleyebileceği seçenekler içerir. Bu işletmelerin alım amacı aynı değildir: Kimi hazırladığı buketlerde kullanmak üzere demet arar, kimi satışa sunacağı modelleri karşılaştırır, kimi de belirli bir dekorasyon çalışması için çiçek ve yeşilliği birlikte değerlendirir.</p>
+      <p>Bu nedenle toptan ürün tedariğinde ürün adı kadar alım miktarı ve kullanım amacı da belirleyicidir. ASPIZ FLOWERS sitesindeki bazı ürünlerde görülen adet ve teklif bilgileri, <strong>toplu yapay çiçek alımı</strong> araştıran işletmelere ürünleri ticari alım açısından inceleme imkânı verir. Bir <strong>toptan yapay çiçek tedarikçisi</strong> arayan alıcı için önemli olan, ihtiyacına uygun ürün gruplarını ve sunulan ürün bilgilerini açık biçimde görebilmektir.</p>
+      <p>Adetli alımlarda da her işletme aynı modele yönelmek zorunda değildir. Çiçekçi belirli demetleri tekrar eden çalışmalarında kullanabilir; yeniden satış yapan bir mağaza ise farklı çiçek türlerini ürün yelpazesine göre değerlendirebilir. ASPIZ FLOWERS’ın çiçek ve bitki seçenekleri, bu farklı B2B alım amaçlarına göre incelenebilecek bir ürün çerçevesi sunar.</p>
+
+      <h2>İstanbul İSTOÇ’ta Yapay Çiçek</h2>
+      <p>ASPIZ FLOWERS’ın <strong>İstanbul İSTOÇ</strong>’ta faaliyet göstermesi, İstanbul toptan yapay çiçek seçeneklerini araştıran işletmeler için somut bir konum bilgisidir. Yerel bir yapay çiçek toptancısı arayan alıcılar, markanın ürünlerini ve konumunu birlikte değerlendirebilir.</p>
+      <p>İSTOÇ’ta yapay çiçek araştıran bir işletmenin ihtiyacı yalnızca tek bir çiçek modelinden oluşmayabilir. Buket için demet, düzenleme için yeşillik veya farklı bir ticari kullanım için sarkıt bitki arayabilir. ASPIZ FLOWERS’ın ürün grupları, bu ihtiyaçların aynı marka kapsamında incelenmesini sağlar; her ürünün özellikleri ve adet bilgileri ise ilgili ürün üzerinden değerlendirilmelidir.</p>
+
+      <h2>Ticari Kullanıma Göre Ürün Grupları</h2>
+      <p>ASPIZ FLOWERS’ın ürün yelpazesi, tek bir kategoriye odaklanmadan çiçek, bitki ve aranjman parçalarını bir araya getirir. Aşağıdaki gruplar, işletmelerin aradıkları ürün tipini genel hatlarıyla görmesi içindir; her modelin özellikleri kendi ürün bilgisinde yer alır.</p>
+
+      <h3>Yapay gül</h3>
+      <p>Gül demetleri, çiçekçilerin buketlerinde ve mağazaların satışa sunduğu ürünler arasında değerlendirilebilir.</p>
+      <h3>Yapay karanfil</h3>
+      <p>Karanfil modelleri, farklı çiçek türlerini ürün yelpazesinde bulundurmak isteyen işletmeler için bir seçenektir.</p>
+      <h3>Yapay kasımpatı</h3>
+      <p>Kasımpatı demetleri, daha dolgun çiçek formları aranan buket ve aranjmanlarda kullanılabilir.</p>
+      <h3>Yapay papatya</h3>
+      <p>Yapay papatya ürünleri, demet veya çiçek başı gibi farklı formlarla ürün çeşitliliğine katkı sağlar.</p>
+      <h3>Yapay yeşillik</h3>
+      <p>Yaprak ve yeşillikler, çiçek demetlerini tamamlayan veya dekoratif düzenlemelerde kullanılan ürünlerdir.</p>
+      <h3>Yapay sarmaşık</h3>
+      <p>Sarkıt formdaki bitkiler, çiçek demetlerinden farklı bir görünüm gerektiren dekoratif çalışmalara yöneliktir.</p>
+      <h3>Yapay ağaç</h3>
+      <p>Ağaç formundaki seçenekler, buketlerden ziyade mekân düzenlemesi için değerlendirilen ürün grubudur.</p>
+      <h3>Aranjman ürünleri</h3>
+      <p>Çiçek ve bitkilerin yanında, aranjman yapımında kullanılabilecek sap gibi yardımcı parçalar da ürün yelpazesinde yer alır.</p>
+    </details>
+  </section>
 
 {% endblock %}

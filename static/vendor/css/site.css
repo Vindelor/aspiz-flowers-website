@@ -1839,34 +1839,57 @@ html.dark-mode .register-link {
   content: none;
 }
 
+/* Footer links as clickable chips */
 .footer-links {
   display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .footer-links a {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
-  color: rgba(245, 234, 238, 0.7);
-  transition: var(--transition);
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(245, 234, 238, 0.07);
+  border: 1px solid rgba(245, 234, 238, 0.18);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: rgb(245, 234, 238);
+  transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
-.footer-links a::before {
-  content: '-';
-  color: rgba(245, 234, 238, 0.35);
+.footer-links a::after {
+  content: '›';
+  font-size: 1.1em;
+  line-height: 1;
+  opacity: 0.5;
+  transition: transform 0.15s, opacity 0.15s;
 }
 
 .footer-links a:hover {
-  color: var(--accent-gold);
-  transform: translateX(4px);
+  background: rgba(224, 69, 123, 0.18);
+  border-color: #e0457b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(224, 69, 123, 0.2);
 }
 
-html[dir="rtl"] .footer-links a:hover {
-  transform: translateX(-4px);
+.footer-links a:hover::after {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.footer-links a:active {
+  transform: scale(0.96);
+  background: rgba(224, 69, 123, 0.3);
+}
+
+html[dir="rtl"] .footer-links a::after {
+  content: '‹';
 }
 
 .footer-search {
@@ -3660,3 +3683,129 @@ html.dark-mode [data-qty-input] {
 .auth-note { text-align: center; font-size: .85rem; color: var(--text-muted); margin-top: 1.25rem; }
 
 .auth-note a { color: var(--accent-gold); font-weight: 600; text-decoration: underline; }
+/* ===== Homepage SEO blocks (templates/core/home.html) ===== */
+.seo-top {
+  padding: 12px 0 2px;
+}
+
+.seo-top h1 {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seo-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+
+.seo-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.seo-chips a {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-main);
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.seo-chips a::after {
+  content: '›';
+  opacity: 0.5;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.seo-chips a:hover {
+  background: rgba(224, 69, 123, 0.12);
+  border-color: #e0457b;
+  transform: translateY(-1px);
+}
+
+.seo-chips a:hover::after {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.seo-chips a:active {
+  transform: scale(0.96);
+}
+
+.seo-bottom {
+  max-width: 820px;
+  margin: 40px 0 24px;
+  color: var(--text-main);
+}
+
+.seo-bottom h2 {
+  margin: 14px 0 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.seo-bottom h3 {
+  margin: 10px 0 2px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.seo-bottom p {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.seo-bottom strong,
+.seo-bottom em {
+  font-weight: inherit;
+  font-style: normal;
+}
+
+.seo-bottom mark {
+  background: none;
+  color: inherit;
+}
+
+.seo-more > summary {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.seo-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.seo-more .seo-more-close,
+.seo-more[open] .seo-more-open {
+  display: none;
+}
+
+.seo-more[open] .seo-more-close {
+  display: inline;
+}
