@@ -215,7 +215,7 @@ WHATSAPP_ORDER_TEMPLATE_NAME = os.getenv("WHATSAPP_ORDER_TEMPLATE_NAME", "new_or
 WHATSAPP_TEMPLATE_LANGUAGE = os.getenv("WHATSAPP_TEMPLATE_LANGUAGE", "tr")
 
 # --- WhatsApp OTP (login/register one-time codes) ---
-WHATSAPP_OTP_TEMPLATE_NAME = os.getenv("WHATSAPP_OTP_TEMPLATE_NAME", "login_code")
+WHATSAPP_OTP_TEMPLATE_NAME = os.getenv("WHATSAPP_OTP_TEMPLATE_NAME", "aspiz_shy")
 
 # Base URL used to build the order link sent inside the WhatsApp message
 # (points staff to the admin page for that order). Set this to your real
