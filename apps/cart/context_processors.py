@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from .cart import get_cart
 
 
@@ -13,7 +15,7 @@ def cart(request):
     session already exists (guest added something, or user is logged in),
     this looks up the cart normally.
     """
-    if request.path.startswith("/admin/"):
+    if request.path.startswith("/" + settings.ADMIN_URL.strip("/") + "/"):
         return {}
     if not request.user.is_authenticated and not request.session.session_key:
         return {"cart_item_count": 0}

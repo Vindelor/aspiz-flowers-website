@@ -144,6 +144,22 @@
     });
   };
 
+  // OTP adımında yanlış numara yazan / kodu alamayan kullanıcı geri dönebilsin.
+  modal.querySelectorAll("[data-otp-back]").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const otpForm = link.closest("[data-otp-form]");
+      const firstForm = otpForm
+        ?.closest("[data-auth-panel]")
+        ?.querySelector("form[data-auth-form]:not([data-otp-form])");
+      if (!otpForm || !firstForm) return;
+      clearFormErrors(otpForm);
+      otpForm.setAttribute("hidden", "true");
+      firstForm.removeAttribute("hidden");
+      firstForm.querySelector("input")?.focus();
+    });
+  });
+
   modal.querySelectorAll("form[data-auth-form]").forEach((form) => {
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -151,6 +167,7 @@
 
       const submitBtn = form.querySelector("button[type=submit]");
       submitBtn?.setAttribute("disabled", "true");
+      let navigating = false;
 
       try {
         const response = await fetch(form.action, {
@@ -177,12 +194,13 @@
           form.setAttribute("hidden", "true");
           otpForm?.removeAttribute("hidden");
           const message = otpForm?.querySelector("[data-form-error]");
-          if (message) message.textContent = data.message || "Giriş kodu telefonunuza gönderildi.";
+          if (message) message.textContent = data.message || "Kod WhatsApp'a gönderildi. Lütfen WhatsApp'taki kodu yazın.";
           otpForm?.querySelector("input[name=code]")?.focus();
           return;
         }
 
         if (data.success) {
+          navigating = true;
           window.location.href = data.redirect_url || window.location.href;
           return; // page is navigating away to reload, leave button disabled
         }
@@ -192,7 +210,7 @@
         const formError = form.querySelector("[data-form-error]");
         if (formError) formError.textContent = "Bir şeyler ters gitti, lütfen tekrar deneyin.";
       } finally {
-        submitBtn?.removeAttribute("disabled");
+        if (!navigating) submitBtn?.removeAttribute("disabled");
       }
     });
   });

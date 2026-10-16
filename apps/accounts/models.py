@@ -18,6 +18,10 @@ class User(AbstractUser):
     phone = models.CharField("Telefon", max_length=20, unique=True)
     address = models.TextField("Adres", blank=True)
 
+    # createsuperuser must ask for phone (unique, required), otherwise the
+    # second superuser crashes on the UNIQUE constraint with phone="".
+    REQUIRED_FIELDS = ["email", "phone"]
+
     def __str__(self):
         return self.get_full_name() or self.username
 

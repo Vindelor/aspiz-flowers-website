@@ -23,9 +23,23 @@ def _to_whatsapp_number(raw_phone):
     return None
 
 
+
+def _is_real_value(value):
+    """False for empty values and for the env.example placeholders ('your-...')."""
+    value = (value or "").strip()
+    return bool(value) and not value.lower().startswith("your-")
+
+
 def send_otp_sms(phone, code):
-    if not (settings.WHATSAPP_PHONE_NUMBER_ID and settings.WHATSAPP_ACCESS_TOKEN):
-        logger.error("WhatsApp OTP not sent: WhatsApp settings are not configured (.env).")
+    if not (
+        _is_real_value(settings.WHATSAPP_PHONE_NUMBER_ID)
+        and _is_real_value(settings.WHATSAPP_ACCESS_TOKEN)
+    ):
+        logger.error(
+            "WhatsApp OTP not sent: WHATSAPP_PHONE_NUMBER_ID / WHATSAPP_ACCESS_TOKEN "
+            "are empty or still placeholders in .env."
+        )
+
         raise SmsSendError("WhatsApp ayarları (.env) yapılandırılmamış.")
 
     to = _to_whatsapp_number(phone)

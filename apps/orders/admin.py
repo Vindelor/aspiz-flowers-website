@@ -1,4 +1,5 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 
 from .models import Order, OrderItem
 
@@ -36,9 +37,39 @@ class OrderItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "status_en", "total", "whatsapp_notified", "created_at")
     list_filter = (StatusAdminFilter, "whatsapp_notified")
-    search_fields = ("id", "user__username", "user__email")
+    search_fields = ("id", "user__username", "user__phone")
     inlines = [OrderItemInline]
     actions = ["cancel_orders", "resend_whatsapp"]
+
+    def save_model(self, request, obj, form, change):
+        # Picking "Cancelled" in the status dropdown used to skip restocking
+        # (only the bulk action did it). Route it through Order.cancel().
+        if change and "status" in form.changed_data and obj.status == Order.Status.CANCELLED:
+            obj.status = form.initial.get("status", Order.Status.PENDING)
+            obj.cancel()
+            return
+        if change and "status" in form.changed_data and form.initial.get("status") == Order.Status.CANCELLED:
+            # Un-cancelling: stock has to be taken again (or the change refused).
+            new_status = obj.status
+            try:
+                obj.reopen(new_status)
+            except ValidationError as exc:
+                obj.status = Order.Status.CANCELLED
+                messages.error(request, f"Status not changed: {exc.messages[0]}")
+            return
+        super().save_model(request, obj, form, change)
+
+    def delete_model(self, request, obj):
+        # Deleting an order that is still holding stock must give it back.
+        if obj.status != Order.Status.CANCELLED:
+            obj.cancel()
+        super().delete_model(request, obj)
+
+    def delete_queryset(self, request, queryset):
+        for order in queryset:
+            if order.status != Order.Status.CANCELLED:
+                order.cancel()
+        super().delete_queryset(request, queryset)
 
     @admin.display(description="Status")
     def status_en(self, obj):

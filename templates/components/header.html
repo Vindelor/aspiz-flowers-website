@@ -66,7 +66,7 @@
     <div class="top-banner-overlay"></div>
     <div class="container top-banner-content">
       <span class="top-banner-eyebrow">{% trans "DOĞRUDAN İTHALATÇIDAN" %}</span>
-      <h2>{% trans "YAPAY ÇİÇEKTE <br>AVANTAJLI TOPTAN FİYATLAR" %}</h2>
+      <h1>{% trans "YAPAY ÇİÇEKTE <br>AVANTAJLI TOPTAN FİYATLAR" %}</h1>
       <p class="top-banner-subtitle">{% trans "Geniş ürün seçeneği, hızlı teslimat ve ürün garantisiyle Türkiye geneline hızlı gönderim" %}</p>
 
       <div class="top-banner-actions">
@@ -123,6 +123,12 @@
           {% if user.is_authenticated %}
           <li><a href="{% url 'orders:history' %}">{% trans "Siparişlerim" %}</a></li>
           <li><a href="{% url 'accounts:profile' %}">{% trans "Hesabım" %}</a></li>
+          <li>
+            <form method="post" action="{% url 'accounts:logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="sidebar-link-btn">{% trans "Çıkış Yap" %}</button>
+            </form>
+          </li>
           {% else %}
           <li><button type="button" class="sidebar-link-btn" data-login-open="login">{% trans "Giriş Yap" %}</button>
           </li>

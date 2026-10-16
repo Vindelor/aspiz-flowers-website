@@ -18,13 +18,16 @@ class AdminLanguageMiddleware:
     each admin.py where it made sense.
     """
 
-    ADMIN_PREFIX = "/admin/"
-
     def __init__(self, get_response):
         self.get_response = get_response
 
+    @staticmethod
+    def _admin_prefix():
+        # Follows ADMIN_URL from settings (it may be changed to hide the panel).
+        return "/" + settings.ADMIN_URL.strip("/") + "/"
+
     def __call__(self, request):
-        target_language = "en" if request.path.startswith(self.ADMIN_PREFIX) else settings.LANGUAGE_CODE
+        target_language = "en" if request.path.startswith(self._admin_prefix()) else settings.LANGUAGE_CODE
         translation.activate(target_language)
         request.LANGUAGE_CODE = target_language
         try:

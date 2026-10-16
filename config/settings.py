@@ -194,6 +194,47 @@ _csrf_trusted = os.getenv("CSRF_TRUSTED_ORIGINS", "")
 if _csrf_trusted:
     CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_trusted.split(",") if origin.strip()]
 
+# --- Shared cache (rate limiting) ---------------------------------------
+# LocMemCache is per-process: with 3 gunicorn workers every counter was split
+# 3 ways and reset on restart, so the OTP/login limits were ~3x weaker than
+# intended. Use Redis when REDIS_URL is set (docker-compose provides it),
+# otherwise a DB-backed cache shared by all workers
+# (run `python manage.py createcachetable` once).
+_redis_url = os.getenv("REDIS_URL")
+if _redis_url:
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": _redis_url}}
+else:
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.db.DatabaseCache", "LOCATION": "django_cache"}}
+
+# --- Client IP detection (used by apps/accounts/ratelimit.py) -------------
+# Never trust X-Forwarded-For blindly: a client can send its own value.
+# CLIENT_IP_HEADER: a header only your proxy can set, e.g. "CF-Connecting-IP"
+#   behind Cloudflare. TRUSTED_PROXY_COUNT: how many proxies in front of the
+#   app append to X-Forwarded-For (Nginx only = 1, Cloudflare + Nginx = 2).
+CLIENT_IP_HEADER = os.getenv("CLIENT_IP_HEADER", "")
+TRUSTED_PROXY_COUNT = int(os.getenv("TRUSTED_PROXY_COUNT", "1"))
+
+# Hard daily ceiling on OTP messages (each one is billed by Meta).
+OTP_DAILY_GLOBAL_MAX = int(os.getenv("OTP_DAILY_GLOBAL_MAX", "500"))
+
+# Errors/warnings go to stdout (docker logs). Without this, DEBUG=False
+# swallows most diagnostics. Optional Sentry: set SENTRY_DSN and
+# `pip install sentry-sdk`.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"std": {"format": "%(asctime)s %(levelname)s %(name)s: %(message)s"}},
+    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "std"}},
+    "root": {"handlers": ["console"], "level": os.getenv("LOG_LEVEL", "INFO")},
+    "loggers": {"django.request": {"handlers": ["console"], "level": "WARNING", "propagate": False}},
+}
+if os.getenv("SENTRY_DSN"):
+    try:
+        import sentry_sdk
+        sentry_sdk.init(dsn=os.getenv("SENTRY_DSN"), traces_sample_rate=0.0, send_default_pii=False)
+    except ImportError:
+        pass
+
 MESSAGE_TAGS = {
     10: "debug",
     20: "info",
