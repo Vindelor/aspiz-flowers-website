@@ -1,6 +1,7 @@
 from django.db import migrations, models
 
 
+
 def dedupe_phones(apps, schema_editor):
     User = apps.get_model("accounts", "User")
     db = schema_editor.connection.alias
@@ -42,23 +43,31 @@ def drop_email_unique_if_present(apps, schema_editor):
     schema_editor.alter_field(User, old_field, new_field)
 
 
+
 class Migration(migrations.Migration):
     """
     Phone becomes the real identity (login/register no longer use email at
     all); email is kept as an unused, non-unique column since AbstractUser
     defines it, but nothing reads or writes it anymore.
 
-    Before the UNIQUE constraint on `phone` is added, existing rows that
-    would violate it are fixed automatically (see `dedupe_phones`):
-    accounts created under the old email login have a blank phone, and a
-    few may share the same number. Those rows get a placeholder phone
-    ("x<id>") instead of being deleted, so no account or order history is
-    lost. Placeholders contain a letter, so they never match a real
-    number at login — staff can fill in the real phone from the admin.
 
-    The email step is idempotent: MySQL can't roll back DDL, so an earlier
-    failed run of this migration may already have dropped the email
-    UNIQUE index. It's only dropped here if it still exists.
+    ⚠️ Run this only after checking for duplicate/blank `phone` values on
+    production — the new UNIQUE constraint on `phone` will fail to apply if
+    any two rows share a value (this includes multiple blank "" rows, most
+    likely stale unverified registrations). A quick check before migrating:
+
+        python manage.py shell -c "
+        from apps.accounts.models import User
+        from django.db.models import Count
+        dupes = (User.objects.values('phone')
+                 .annotate(c=Count('id')).filter(c__gt=1))
+        print(list(dupes))
+        "
+
+    If that prints anything, delete/fix those rows first (inactive rows with
+    a blank/duplicate phone are almost always abandoned, never-verified
+    registrations and are safe to delete).
+
     """
 
     dependencies = [
@@ -66,24 +75,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(
-            dedupe_phones,
-            migrations.RunPython.noop,
-        ),
-        migrations.SeparateDatabaseAndState(
-            database_operations=[
-                migrations.RunPython(
-                    drop_email_unique_if_present,
-                    migrations.RunPython.noop,
-                ),
-            ],
-            state_operations=[
-                migrations.AlterField(
-                    model_name="user",
-                    name="email",
-                    field=models.EmailField(blank=True, max_length=254, verbose_name="email address"),
-                ),
-            ],
+        # dedupe_phones() existed above but was never wired in, so a database
+        # with blank/duplicate phones made the UNIQUE step below fail and the
+        # container's `migrate` (run on every start) crash-looped.
+        migrations.RunPython(dedupe_phones, migrations.RunPython.noop),
+
+        migrations.AlterField(
+            model_name="user",
+            name="email",
+            field=models.EmailField(blank=True, max_length=254, verbose_name="email address"),
+
         ),
         migrations.AlterField(
             model_name="user",

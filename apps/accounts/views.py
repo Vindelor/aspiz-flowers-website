@@ -1,4 +1,4 @@
-
+import logging
 import secrets
 import re
 from datetime import timedelta
@@ -8,11 +8,15 @@ from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password, make_password
 from django.http import JsonResponse
-from django.db import transaction
+
+from django.db import IntegrityError, transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
 
+
+from apps.cart.cart import merge_guest_cart
 from apps.orders.models import Order
 
 from . import sms
@@ -35,15 +39,18 @@ from .ratelimit import (
     is_code_verify_locked,
     is_login_locked,
     is_register_rate_limited,
-    otp_send_allowed,
+
+    otp_send_check,
     register_attempt,
-    release_otp_cooldown,
+    rollback_otp_send,
+
     register_code_request,
     register_code_verify_failure,
     register_login_failure,
 )
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 def _is_ajax(request):
@@ -53,9 +60,40 @@ def _is_ajax(request):
 LOGIN_LOCKOUT_MESSAGE = "Çok fazla başarısız giriş denemesi yapıldı. Lütfen 15 dakika sonra tekrar deneyin."
 REGISTER_RATE_LIMIT_MESSAGE = "Çok fazla kayıt denemesi yapıldı. Lütfen daha sonra tekrar deneyin."
 CODE_REQUEST_RATE_LIMIT_MESSAGE = "Çok fazla kod talebi yapıldı. Lütfen biraz sonra tekrar deneyin."
-CODE_VERIFY_LOCKOUT_MESSAGE = "Çok fazla hatalı kod denemesi yapıldı. Lütfen yeniden giriş yapmayı deneyin."
+
+CODE_VERIFY_LOCKOUT_MESSAGE = "Çok fazla hatalı kod denemesi yapıldı. Lütfen 15 dakika sonra tekrar deneyin."
+OTP_COOLDOWN_MESSAGE = "Yeni kod için lütfen 60 saniye bekleyin."
+_PENDING_REGISTRATION_MESSAGE = (
+    "Kaydınız henüz doğrulanmamış. Lütfen \"Kayıt Ol\" sekmesinden aynı numarayla tekrar kayıt olup kodu girin."
+)
 _ACCOUNT_NOT_FOUND_MESSAGE = "Bu telefon numarasıyla kayıtlı bir hesap bulunamadı."
 _CODE_SEND_FAILED_MESSAGE = "Giriş kodu gönderilemedi. Lütfen daha sonra tekrar deneyin."
+LOGIN_CODE_SENT_MESSAGE = "Kod WhatsApp'a gönderildi. Lütfen WhatsApp'taki kodu yazın."
+REGISTER_CODE_SENT_MESSAGE = "Hesabınızı doğrulamak için WhatsApp'a bir kod gönderdik. Lütfen WhatsApp'taki kodu yazın."
+
+
+def _safe_next(request, value):
+    """`next` kullanıcıdan geliyor: yalnızca bu siteye ait adreslere izin ver (open redirect önlemi)."""
+    value = value or ""
+    if value and url_has_allowed_host_and_scheme(
+        value, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return value
+    return ""
+
+
+def _remember_next(request):
+    """
+    @login_required, kullanıcıyı /accounts/login/?next=/orders/checkout/ adresine
+    gönderiyor; ama kod doğrulama ayrı bir istek olduğu için `next` kayboluyor ve
+    giriş sonrası kullanıcı hep ana sayfaya düşüyordu. Oturumda saklıyoruz.
+    """
+    nxt = _safe_next(request, request.POST.get("next") or request.GET.get("next"))
+    if nxt:
+        request.session["login_next"] = nxt
+    else:
+        request.session.pop("login_next", None)
+
 
 
 def _issue_login_code(user):
@@ -70,7 +108,6 @@ def _issue_login_code(user):
     can show an error instead of stranding a code nobody received.
     """
     code = f"{secrets.randbelow(1000000):06d}"
-    LoginCode.objects.filter(user=user, used_at__isnull=True).update(used_at=timezone.now())
     login_code = LoginCode.objects.create(
         user=user,
         code_hash=make_password(code),
@@ -81,6 +118,8 @@ def _issue_login_code(user):
     except Exception:
         login_code.delete()
         raise
+    # Only now (send succeeded) retire the previous pending codes.
+    LoginCode.objects.filter(user=user, used_at__isnull=True).exclude(pk=login_code.pk).update(used_at=timezone.now())
     return login_code
 
 
@@ -89,6 +128,9 @@ def login_request_view(request):
         return redirect("core:home")
     form = LoginRequestForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
+
+        _remember_next(request)
+
         phone_candidates = phone_lookup_candidates(form.cleaned_data["phone"])
         # Any one representation is fine as the rate-limit/lockout key —
         # they all refer to the same number, and the key just needs to be
@@ -111,23 +153,48 @@ def login_request_view(request):
         user = User.objects.filter(phone__in=phone_candidates, is_active=True).first()
         if not user:
             register_login_failure(request, lookup_key)
+
+            # Kayıt olmuş ama kodu hiç girmemiş kişi: "hesap yok" demek yerine
+            # nasıl devam edeceğini söyle.
+            if stale_unverified_users(lookup_key).exists():
+                return _auth_error(request, {"__all__": [_PENDING_REGISTRATION_MESSAGE]}, 400)
             return _auth_error(request, {"__all__": [_ACCOUNT_NOT_FOUND_MESSAGE]}, 400)
 
+        # ===== FIX =====
+        # Admin/staff hesapları yalnızca OTP ile giriş yapamaz; yönetim paneli
+        # şifre istemeli. Bu hesaplar müşteri giriş formunda "yok" gibi davranır.
+        if user.is_staff or user.is_superuser:
+            register_login_failure(request, lookup_key)
+            return _auth_error(request, {"__all__": [_ACCOUNT_NOT_FOUND_MESSAGE]}, 400)
+        # ===== /FIX =====
+
         clear_login_failures(request, lookup_key)
-        register_code_request(request, lookup_key)
+
+        # Hesap hatalı kod denemelerinden dolayı kilitliyse yeni kod GÖNDERME:
+        # kod ücretli, üstelik doğru kod bile kilit bitene kadar reddediliyor.
+        if is_code_verify_locked(request, user.pk):
+            return _auth_error(request, {"__all__": [CODE_VERIFY_LOCKOUT_MESSAGE]}, 429)
 
         # Para harcayan işlem: IP başına / numara başına / 60 sn bekleme limiti.
-        if not otp_send_allowed(request, lookup_key):
-            return _auth_error(request, {"__all__": [CODE_REQUEST_RATE_LIMIT_MESSAGE]}, 429)
+        blocked = otp_send_check(request, lookup_key)
+        if blocked:
+            message = OTP_COOLDOWN_MESSAGE if blocked == "cooldown" else CODE_REQUEST_RATE_LIMIT_MESSAGE
+            return _auth_error(request, {"__all__": [message]}, 429)
+        register_code_request(request, lookup_key)
+
 
         try:
             login_code = _issue_login_code(user)
         except Exception:
-            release_otp_cooldown(lookup_key)
+
+            logger.exception("Login code could not be sent")
+            rollback_otp_send(request, lookup_key)
+
             return _auth_error(request, {"__all__": [_CODE_SEND_FAILED_MESSAGE]}, 503)
         request.session["login_code_id"] = login_code.pk
         if _is_ajax(request):
-            return JsonResponse({"success": True, "step": "verify", "message": "Giriş kodu telefonunuza gönderildi."})
+            return JsonResponse({"success": True, "step": "verify", "message": LOGIN_CODE_SENT_MESSAGE})
+        messages.info(request, LOGIN_CODE_SENT_MESSAGE)
         return redirect("accounts:login_verify_page")
     return _auth_form_response(request, form)
 
@@ -142,7 +209,7 @@ def login_verify_view(request):
     form = LoginVerifyForm(request.POST or None)
     code_id = request.session.get("login_code_id")
     if request.method != "POST" or not form.is_valid() or not code_id:
-        return _auth_error(request, {"code": ["Giriş kodu geçersiz veya süresi doldu."]}, 400)
+        return _auth_error(request, {"code": ["Giriş kodu geçersiz veya süresi doldu."]}, 400, stay_on_code_page=True)
 
     with transaction.atomic():
         login_code = (
@@ -158,7 +225,7 @@ def login_verify_view(request):
         # users, so this check never mattered for that path anyway.
         if not login_code:
             request.session.pop("login_code_id", None)
-            return _auth_error(request, {"code": ["Giriş kodu geçersiz veya süresi doldu."]}, 400)
+            return _auth_error(request, {"code": ["Giriş kodu geçersiz veya süresi doldu."]}, 400, stay_on_code_page=True)
 
         user_id = login_code.user_id
 
@@ -167,20 +234,27 @@ def login_verify_view(request):
         # per-row `attempts` field on LoginCode.
         if is_code_verify_locked(request, user_id):
             request.session.pop("login_code_id", None)
-            return _auth_error(request, {"__all__": [CODE_VERIFY_LOCKOUT_MESSAGE]}, 429)
+            return _auth_error(request, {"__all__": [CODE_VERIFY_LOCKOUT_MESSAGE]}, 429, stay_on_code_page=True)
 
         if not login_code.is_valid:
-            return _auth_error(request, {"code": ["Giriş kodu geçersiz veya süresi doldu."]}, 400)
+            return _auth_error(request, {"code": ["Giriş kodu geçersiz veya süresi doldu."]}, 400, stay_on_code_page=True)
 
         login_code.attempts += 1
         login_code.save(update_fields=["attempts"])
         if not check_password(form.cleaned_data["code"], login_code.code_hash):
             register_code_verify_failure(request, user_id)
-            return _auth_error(request, {"code": ["Giriş kodu hatalı."]}, 400)
+            return _auth_error(request, {"code": ["Giriş kodu hatalı."]}, 400, stay_on_code_page=True)
 
         login_code.used_at = timezone.now()
         login_code.save(update_fields=["used_at"])
         user = login_code.user
+
+        # ===== FIX =====
+        # Savunma ikinci katman: login_request_view'dan sonra bir hesap staff
+        # yapılmış olsa bile OTP ile oturum açılmasın.
+        if user.is_staff or user.is_superuser:
+            return _auth_error(request, {"code": ["Giriş kodu geçersiz veya süresi doldu."]}, 400, stay_on_code_page=True)
+        # ===== /FIX =====
 
         # Flips a just-registered (inactive) account to active the moment
         # its verification code checks out. No-op for the normal login
@@ -191,15 +265,14 @@ def login_verify_view(request):
 
     clear_code_verify_failures(request, user_id)
     request.session.pop("login_code_id", None)
-    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
-    # `next` kullanıcıdan geliyor: yalnızca bu siteye ait adreslere yönlendir
-    # (open redirect önlemi).
-    next_url = request.POST.get("next") or ""
-    if not url_has_allowed_host_and_scheme(
-        next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
-    ):
-        next_url = ""
+    stored_next = request.session.pop("login_next", "")
+    guest_session_key = request.session.session_key  # login() rotates it
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    merge_guest_cart(user, guest_session_key)
+
+    next_url = _safe_next(request, request.POST.get("next")) or _safe_next(request, stored_next)
+
     return _auth_success(request, {"redirect_url": next_url or reverse("core:home")})
 
 
@@ -207,17 +280,26 @@ def _auth_success(request, data):
     return JsonResponse({"success": True, **data}) if _is_ajax(request) else redirect(data.get("redirect_url", "accounts:login"))
 
 
-def _auth_error(request, errors, status=400):
+def _auth_error(request, errors, status=400, stay_on_code_page=False):
     if _is_ajax(request):
         return JsonResponse({"success": False, "errors": errors}, status=status)
     messages.error(request, next(iter(errors.values()))[0])
+    # Full-page (non-JS / @login_required) flow: after a mistyped code the
+    # user must land back on the CODE form. Sending them to the phone form
+    # forced a brand-new code, which then hit the 60 s resend cooldown.
+    if stay_on_code_page and request.session.get("login_code_id"):
+        return redirect("accounts:login_verify_page")
     return redirect("accounts:login")
 
 
 def _auth_form_response(request, form):
     if _is_ajax(request):
         return JsonResponse({"success": False, "errors": form.errors}, status=400)
-    return render(request, "accounts/login.html", {"form": form})
+    return render(
+        request,
+        "accounts/login.html",
+        {"form": form, "next": _safe_next(request, request.POST.get("next") or request.GET.get("next"))},
+    )
 
 
 def register_view(request):
@@ -242,14 +324,16 @@ def register_view(request):
         if form.is_valid():
             phone = form.cleaned_data["phone"]
 
+            _remember_next(request)
+
             # Para harcayan işlem: kullanıcı oluşturmadan ÖNCE limiti kontrol et.
-            if not otp_send_allowed(request, phone):
+            blocked = otp_send_check(request, phone)
+            if blocked:
+                message = OTP_COOLDOWN_MESSAGE if blocked == "cooldown" else CODE_REQUEST_RATE_LIMIT_MESSAGE
                 if ajax:
-                    return JsonResponse(
-                        {"success": False, "errors": {"__all__": [CODE_REQUEST_RATE_LIMIT_MESSAGE]}},
-                        status=429,
-                    )
-                messages.error(request, CODE_REQUEST_RATE_LIMIT_MESSAGE)
+                    return JsonResponse({"success": False, "errors": {"__all__": [message]}}, status=429)
+                messages.error(request, message)
+
                 return render(request, "accounts/register.html", {"form": RegisterForm(), "next": next_url})
 
             # A previous registration with this phone may exist but never
@@ -270,15 +354,29 @@ def register_view(request):
             # number they don't actually control. login_verify_view flips
             # this to True and calls login() once the code checks out.
             user.is_active = False
-            user.save()
+            try:
+                with transaction.atomic():
+                    user.save()
+            except IntegrityError:
+                # Aynı numarayla eşzamanlı iki kayıt (çift tıklama / iki sekme):
+                # DB unique kısıtı 500 hatası yerine anlaşılır bir mesaja dönsün.
+                rollback_otp_send(request, phone, code_request_counted=False)
+                duplicate_message = "Bu telefon numarası zaten kayıtlı."
+                if ajax:
+                    return JsonResponse({"success": False, "errors": {"phone": [duplicate_message]}}, status=400)
+                messages.error(request, duplicate_message)
+                return render(request, "accounts/register.html", {"form": RegisterForm(), "next": next_url})
 
             try:
                 login_code = _issue_login_code(user)
             except Exception:
+                logger.exception("Registration code could not be sent")
                 # Nobody could receive the code, so don't leave a dangling
                 # unverifiable account sitting on this phone number.
                 user.delete()
-                release_otp_cooldown(phone)
+
+                rollback_otp_send(request, phone, code_request_counted=False)
+
                 if ajax:
                     return JsonResponse({"success": False, "errors": {"__all__": [_CODE_SEND_FAILED_MESSAGE]}}, status=503)
                 messages.error(request, _CODE_SEND_FAILED_MESSAGE)
@@ -287,9 +385,9 @@ def register_view(request):
             request.session["login_code_id"] = login_code.pk
             if ajax:
                 return JsonResponse(
-                    {"success": True, "step": "verify", "message": "Hesabınızı doğrulamak için telefonunuza bir kod gönderdik."}
+                    {"success": True, "step": "verify", "message": REGISTER_CODE_SENT_MESSAGE}
                 )
-            messages.info(request, "Hesabınızı doğrulamak için telefonunuza bir kod gönderdik.")
+            messages.info(request, REGISTER_CODE_SENT_MESSAGE)
             return redirect("accounts:login_verify_page")
 
         register_attempt(request)
@@ -301,6 +399,7 @@ def register_view(request):
     return render(request, "accounts/register.html", {"form": form, "next": next_url})
 
 
+@require_POST
 def logout_view(request):
     logout(request)
     messages.info(request, "Çıkış yapıldı.")
