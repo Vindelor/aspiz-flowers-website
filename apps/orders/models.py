@@ -35,13 +35,44 @@ class Order(models.Model):
         Cancelling an order restores stock automatically — the admin never
         has to touch stock numbers by hand in either direction.
         """
-        if self.status == self.Status.CANCELLED:
+        # Re-read under a row lock so two simultaneous cancels (double click,
+        # admin + customer) can't both restock the same items.
+        locked = type(self).objects.select_for_update().get(pk=self.pk)
+        if locked.status == self.Status.CANCELLED:
+            self.status = self.Status.CANCELLED
             return
         for item in self.items.select_related("product").select_for_update():
             Product.objects.filter(pk=item.product_id).update(
                 stock_quantity=models.F("stock_quantity") + item.quantity
             )
         self.status = self.Status.CANCELLED
+        self.save(update_fields=["status"])
+
+
+    @transaction.atomic
+    def reopen(self, new_status):
+        """
+        Moving a CANCELLED order back to an active status must take the stock
+        again (cancel() gave it back). Raises ValidationError, changing
+        nothing, if any item no longer has enough stock.
+        """
+        locked = type(self).objects.select_for_update().get(pk=self.pk)
+        if locked.status != self.Status.CANCELLED:
+            self.status = new_status
+            self.save(update_fields=["status"])
+            return
+        items = list(self.items.select_related("product"))
+        for item in items:
+            product = Product.objects.select_for_update().get(pk=item.product_id)
+            if product.stock_quantity < item.quantity:
+                raise ValidationError(
+                    f"Yetersiz stok: '{product.name}' için sadece {product.stock_quantity} adet kaldı."
+                )
+        for item in items:
+            Product.objects.filter(pk=item.product_id).update(
+                stock_quantity=models.F("stock_quantity") - item.quantity
+            )
+        self.status = new_status
         self.save(update_fields=["status"])
 
 
