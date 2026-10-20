@@ -227,7 +227,7 @@ class ProductImage(models.Model):
         img.thumbnail((MAX_DIMENSION, MAX_DIMENSION), Image.LANCZOS)
 
         buffer = io.BytesIO()
-        img.save(buffer, format="WEBP", quality=82, method=6)
+        img.save(buffer, format="WEBP", quality=82, method=4)
         buffer.seek(0)
 
         original_name = self.image.name.rsplit(".", 1)[0]
