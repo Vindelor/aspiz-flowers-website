@@ -59,17 +59,21 @@
   <!-- 2. Top Banner (Video Hero) — homepage only: keeps inner pages light & fast on mobile.
        Sits below the header now, so it never overlaps the nav bar above it. -->
   {% if request.resolver_match.view_name == 'core:home' %}
-  <div class="top-banner">
-    <video class="top-banner-media" autoplay muted loop playsinline preload="auto">
+  <script>document.documentElement.classList.add("hero3-js");</script>
+  <div class="hero3" data-hero3>
+    <video class="hero3-media" autoplay muted loop playsinline preload="auto">
       <source src="{% static 'vendor/video/hero-banner.mp4' %}" type="video/mp4">
     </video>
-    <div class="top-banner-overlay"></div>
-    <div class="container top-banner-content">
-      <span class="top-banner-eyebrow">{% trans "DOĞRUDAN İTHALATÇIDAN" %}</span>
-      <h1>{% trans "YAPAY ÇİÇEKTE <br>AVANTAJLI TOPTAN FİYATLAR" %}</h1>
-      <p class="top-banner-subtitle">{% trans "Geniş ürün seçeneği, hızlı teslimat ve ürün garantisiyle Türkiye geneline hızlı gönderim" %}</p>
 
-      <div class="top-banner-actions">
+    <div class="hero3-shade"></div>
+    <div class="hero3-orb hero3-orb--plum"></div>
+
+    <div class="container hero3-in">
+      <span class="hero3-badge">{% trans "Toptan satışa özel" %}</span>
+      <h1 data-hero3-split>{% trans "Yapay çiçekte" %} <em>{% trans "avantajlı" %}</em> {% trans "toptan fiyatlar" %}</h1>
+      <p class="hero3-sub">{% trans "Doğrudan ithalatçıdan, geniş ürün seçeneği ve hızlı teslimatla Türkiye'nin her yerine." %}</p>
+
+      <div class="hero3-actions">
         <a href="https://wa.me/{{ shop_whatsapp_display|cut:' '|cut:'+' }}" target="_blank" rel="noopener noreferrer"
           class="hero-btn hero-btn-filled">
           <i class="fa-brands fa-whatsapp"></i> {% trans "SİPARİŞ VER" %}
@@ -78,14 +82,20 @@
           <i class="fa-solid fa-leaf"></i> {% trans "Ürünleri Keşfet" %}
         </a>
       </div>
-      <div class="top-banner-trust">
-        <span><i class="fa-solid fa-gem"></i> {% trans "DOĞRUDAN İTHALAT" %}</span>
-        <span><i class="fa-solid fa-truck-fast"></i> {% trans "HIZLI TESLİMAT" %}</span>
-        <span><i class="fa-solid fa-heart"></i> {% trans "ÜRÜN GARANTİSİ" %}</span>
-      </div>
+    </div>
 
+    <div class="hero3-marquee" aria-hidden="true">
+      <div class="hero3-marquee-track">
+        {% for i in "12" %}
+        <span>{% trans "DOĞRUDAN İTHALAT" %}</span>
+        <span>{% trans "HIZLI TESLİMAT" %}</span>
+        <span>{% trans "ÜRÜN GARANTİSİ" %}</span>
+        <span>{% trans "TÜRKİYE GENELİNE GÖNDERİM" %}</span>
+        {% endfor %}
+      </div>
     </div>
   </div>
+  <script src="{% static 'vendor/js/hero3.js' %}" defer></script>
   {% endif %}
 
   <!-- 3. Mobil kenar çubuğu -->
@@ -179,36 +189,24 @@
       <p class="copyright-text">&copy; {% now "Y" %} {% trans "ASPIZ FLOWERS" %}</p>
     </div>
   </nav>
+  <!-- Category circles (image comes from Category.icon, uploaded in the admin panel) -->
   {% if nav_categories %}
-  <nav class="main-nav">
-    <div class="container">
-      <ul>
-        {% for cat in nav_categories %}
-        <li><a href="{% url 'products:by_category' cat.slug %}"><i class="fa-solid fa-leaf"></i> {{ cat.name }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-  </nav>
-  {% endif %}
-
-  <!--  Popular products circular slider -->
-  {% if featured_products %}
   <div class="category-slider">
     <div class="container">
       <div class="slider-track" data-slider-track tabindex="0" role="region"
-        aria-label="{% trans 'Ürünler arasında gezinme' %}">
-        {% for product in featured_products %}
-        <a href="{{ product.get_absolute_url }}" class="cat-item">
+        aria-label="{% trans 'Kategoriler arasında gezinme' %}">
+        {% for cat in nav_categories %}
+        <a href="{% url 'products:by_category' cat.slug %}" class="cat-item">
           <div class="img-box">
-            {% if product.primary_image %}
-            <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}" width="70" height="70"
+            {% if cat.icon %}
+            <img src="{{ cat.icon.url }}" alt="{{ cat.name }}" width="70" height="70"
               loading="lazy"
               onerror="this.replaceWith(Object.assign(document.createElement('i'), {className: 'fa-solid fa-seedling'}))">
             {% else %}
             <i class="fa-solid fa-seedling"></i>
             {% endif %}
           </div>
-          <span>{{ product.name }}</span>
+          <span>{{ cat.name }}</span>
         </a>
         {% endfor %}
       </div>

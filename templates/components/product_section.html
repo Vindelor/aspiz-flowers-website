@@ -1,6 +1,8 @@
 {% comment %}
 Usage:
 {% include "components/product_section.html" with title="Tüm Ürünler" products=all_products see_all_url=... %}
+Optional: promo=True  -> soft pink band + 6-hour repeating countdown next to the title
+          (styles: static/vendor/css/promo-section.css, logic: static/vendor/js/promo-timer.js).
 
 Home / detail page section: up to 10 products in a single row that the user
 scrolls left-and-right themselves (drag / touch swipe / trackpad / arrow keys
@@ -13,11 +15,22 @@ does. The full catalogue keeps its own, denser grid on
 templates/products/list.html — that page is where cards shrink down to the
 "see everything" size; this carousel is the highlight strip.
 {% endcomment %}
-<section class="py-5 md:py-10">
-  <div class="mb-3 flex items-end justify-between md:mb-7">
-    <h2 class="font-display text-3xl uppercase leading-none tracking-wide md:text-4xl" style="color: var(--text-main);">
-      {{ title }}
-    </h2>
+<section class="{% if promo %}promo-section{% else %}py-5 md:py-10{% endif %}">
+  <div class="{% if promo %}promo-head{% else %}mb-3 flex items-end justify-between md:mb-7{% endif %}">
+    <div class="{% if promo %}promo-head-main{% endif %}">
+      <h2 class="font-display text-3xl uppercase leading-none tracking-wide md:text-4xl" style="color: var(--text-main);">
+        {{ title }}
+      </h2>
+      {% if promo %}
+        <div class="promo-timer" data-promo-timer role="timer" aria-label="Kampanyanın bitmesine kalan süre">
+          <span class="promo-timer-box" data-promo-h>00</span>
+          <span class="promo-timer-sep" aria-hidden="true">:</span>
+          <span class="promo-timer-box" data-promo-m>00</span>
+          <span class="promo-timer-sep" aria-hidden="true">:</span>
+          <span class="promo-timer-box" data-promo-s>00</span>
+        </div>
+      {% endif %}
+    </div>
     {% if see_all_url and products|length > 4 %}
       <a href="{{ see_all_url }}" class="view-all-link shrink-0">
         Tümünü Gör
