@@ -232,6 +232,8 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 
 .top-banner h2,
 .top-banner h1 {
+
+
   font-family: 'Bodoni Moda', 'Cormorant Garamond', Georgia, serif;
   font-size: clamp(2.5rem, 7vw, 5.5rem);
   font-weight: 500;
@@ -663,8 +665,10 @@ html.dark-mode .glass-floating-oval .search-box {
     width: 16px;
   }
  
+
   .top-banner h2,
   .top-banner h1 {
+
     font-size: clamp(1.5rem, 7.5vw, 2.25rem);
     line-height: 1.2;
   }
