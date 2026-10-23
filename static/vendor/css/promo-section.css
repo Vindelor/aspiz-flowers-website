@@ -75,6 +75,7 @@ html.dark-mode .promo-timer-sep {
     min-width: 2rem;
     font-size: 0.95rem;
   }
+
 }
 
 /* Mobile: keep the product row inside the pink frame (site.css lets every
@@ -86,4 +87,5 @@ html.dark-mode .promo-timer-sep {
     padding-inline: 0;
     scroll-padding-inline: 0;
   }
+
 }
