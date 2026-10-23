@@ -2,24 +2,25 @@
 {% load static %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'vendor/css/promo-section.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/css/promo-banner.css' %}">
 {% endblock %}
 {% block content %}
   
 
   <div class="space-y-6">
-    {% if popular_products %}
-      {% include "components/product_section.html" with title="Popüler Ürünler" products=popular_products see_all_url=popular_url promo=True %}
-    {% endif %}
-    {% include "components/product_section.html" with title="Yeni Ürünler" products=new_products bg="bg-white" see_all_url=new_url %}
-    {% if deal_products %}
-      {% include "components/product_section.html" with title="Fırsat Ürünleri" products=deal_products bg="bg-orange-50" see_all_url=deal_url %}
-    {% endif %}
-    {% for section in badge_sections %}
-      {% include "components/product_section.html" with title=section.title products=section.products see_all_url=section.see_all_url %}
+    {% for section in sections %}
+      {% include "components/product_section.html" with title=section.title products=section.products bg=section.bg see_all_url=section.see_all_url promo=section.promo %}
+      {% if forloop.counter == 3 %}
+        {% include "components/promo_banner.html" %}
+      {% endif %}
     {% endfor %}
+    {% if sections|length < 3 %}
+      {% include "components/promo_banner.html" %}
+    {% endif %}
   </div>
 
 {% endblock %}
 {% block extra_js %}
   <script src="{% static 'vendor/js/promo-timer.js' %}" defer></script>
+  <script src="{% static 'vendor/js/promo-banner.js' %}" defer></script>
 {% endblock %}

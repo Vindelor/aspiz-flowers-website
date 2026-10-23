@@ -30,7 +30,30 @@ def home(request):
                 "see_all_url": f"{reverse('products:list')}?badge={badge_value}",
             })
 
+    # Ordered list of the home page sections that actually have products, so
+    # the template can drop the promo banner between the 3rd and 4th section
+    # no matter which optional sections (popular / deals / badges) exist.
+    popular_products = active_products.filter(badge=Product.Badge.POPULAR)[:12]
+    new_products = active_products.order_by("-created_at")[:12]
+    deal_products = active_products.filter(discount_percent__gt=0)[:12]
+
+    sections = []
+    if popular_products:
+        sections.append({"title": "Popüler Ürünler", "products": popular_products,
+                         "see_all_url": f"{reverse('products:list')}?filter=popular",
+                         "promo": True, "bg": ""})
+    sections.append({"title": "Yeni Ürünler", "products": new_products,
+                     "see_all_url": f"{reverse('products:list')}?filter=new",
+                     "promo": False, "bg": "bg-white"})
+    if deal_products:
+        sections.append({"title": "Fırsat Ürünleri", "products": deal_products,
+                         "see_all_url": f"{reverse('products:list')}?filter=deal",
+                         "promo": False, "bg": "bg-orange-50"})
+    for extra in badge_sections:
+        sections.append({**extra, "promo": False, "bg": ""})
+
     context = {
+        "sections": sections,
         "categories": categories,
         "new_products": active_products.order_by("-created_at")[:12],
         "deal_products": active_products.filter(discount_percent__gt=0)[:12],

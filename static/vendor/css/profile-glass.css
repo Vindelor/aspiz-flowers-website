@@ -1,0 +1,220 @@
+/* Profile page — frosted-glass layout (templates/accounts/profile.html).
+   Everything is scoped under .pf-* so login/register/password-reset keep using
+   the shared .account-* rules in site.css untouched. */
+.pf-stage {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  margin: 1.5rem 0;
+  padding: 2.5rem;
+  border-radius: 2rem;
+  background: #2a0f1a;
+  color: #f5eaee;
+}
+
+.pf-orb {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.pf-orb--a { top: -120px; left: -100px; width: 460px; height: 460px; background: #a8325c; }
+.pf-orb--b { right: -120px; bottom: -80px; width: 500px; height: 500px; background: #c9764a; }
+.pf-orb--c { left: 38%; bottom: -160px; width: 340px; height: 340px; background: #5b2a6e; }
+
+.pf-grid {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.pf-side { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.pf-card {
+  padding: 2.25rem;
+  border-radius: 2rem;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
+}
+
+.pf-head { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
+
+.pf-avatar {
+  flex: none;
+  width: 84px;
+  height: 84px;
+  padding: 4px;
+  box-sizing: border-box;
+  border: 2px solid #e6c68f;
+  border-radius: 50%;
+}
+.pf-avatar span {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #8c2a4b;
+  font: 600 2.1rem 'Cormorant Garamond', Georgia, serif;
+  text-transform: uppercase;
+}
+
+.pf-head h1,
+.pf-card h2 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 600;
+  font-style: normal;
+  color: #f5eaee;
+}
+.pf-head h1 { font-size: 2.35rem; line-height: 1.1; }
+.pf-card h2 { font-size: 1.6rem; margin-bottom: 0.4rem; }
+.pf-head p, .pf-note, .pf-card p { margin: 0.25rem 0 0; font-size: 0.95rem; color: #d9bfca; }
+
+.pf-form { display: flex; flex-direction: column; gap: 1rem; }
+.pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.pf-field {
+  padding: 0.7rem 1.1rem 0.5rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.pf-field:focus-within {
+  border-color: #e6c68f;
+  background: rgba(255, 255, 255, 0.12);
+}
+.pf-field label {
+  display: block;
+  margin: 0 0 0.15rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #d9bfca;
+}
+.pf-field input,
+.pf-field textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.2rem 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #f5eaee;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.05rem;
+  box-shadow: none;
+}
+.pf-field textarea { min-height: 84px; resize: none; }
+.pf-field input::placeholder,
+.pf-field textarea::placeholder { color: #a98c99; }
+.pf-field input:-webkit-autofill {
+  -webkit-text-fill-color: #f5eaee;
+  transition: background-color 9999s ease-out;
+}
+.pf-field.is-locked { opacity: 0.8; }
+.pf-field.is-locked input { cursor: not-allowed; }
+
+.pf-lock { display: flex; align-items: center; gap: 0.5rem; margin: -0.35rem 0.25rem 0; font-size: 0.8rem; color: #c9aebb; }
+
+.pf-error { display: block; margin: 0.15rem 0.25rem 0; font-size: 0.82rem; color: #ffb4c0; }
+
+.pf-save {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 56px;
+  margin-top: 0.4rem;
+  border: 0;
+  border-radius: 1rem;
+  background: #e6c68f;
+  color: #2a0f1a;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+.pf-save:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.pf-save:focus-visible, .pf-link:focus-visible, .pf-wa:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+.pf-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 1.1rem;
+  border-radius: 1rem;
+  background: rgba(230, 198, 143, 0.18);
+  color: #e6c68f;
+  font-size: 1.3rem;
+}
+
+.pf-orders { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.9rem 0 1.1rem; }
+.pf-order {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5eaee;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+.pf-order:hover { background: rgba(255, 255, 255, 0.15); }
+.pf-order b { font-weight: 600; }
+.pf-order .order-status { font-size: 0.75rem; }
+
+.pf-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e6c68f;
+  text-decoration: none;
+}
+.pf-link:hover { text-decoration: underline; }
+
+.pf-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+  padding: 0.8rem 1.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+.pf-wa:hover { background: rgba(255, 255, 255, 0.24); }
+
+@media (max-width: 900px) {
+  .pf-stage { padding: 1.25rem; border-radius: 1.5rem; }
+  .pf-grid { grid-template-columns: 1fr; }
+  .pf-card { padding: 1.5rem; border-radius: 1.5rem; }
+}
+@media (max-width: 560px) {
+  .pf-row { grid-template-columns: 1fr; }
+  .pf-head h1 { font-size: 1.9rem; }
+  .pf-avatar { width: 68px; height: 68px; }
+}
