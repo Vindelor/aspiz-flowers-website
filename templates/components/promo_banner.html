@@ -1,0 +1,33 @@
+{% comment %}
+İnce reklam bandı (Snap tarzı) — 3 slayt, otomatik değişir.
+Stil: static/vendor/css/promo-banner.css  |  Mantık: static/vendor/js/promo-banner.js
+Slayt eklemek/değiştirmek için aşağıdaki <a class="pb-slide"> bloklarından birini düzenleyin.
+Görsel (isteğe bağlı): <img class="pb-img" src="{% static 'src/img/banners/dosya.jpg' %}" alt="">
+{% endcomment %}
+{% load static %}
+<section class="pb" data-promo-banner aria-roledescription="carousel" aria-label="Kampanyalar">
+  <div class="pb-track" data-pb-track>
+    <a class="pb-slide pb-wine" href="{% url 'products:list' %}">
+      <span class="pb-text">
+        <strong class="pb-title">Toptan siparişte kademeli fiyat</strong>
+        <span class="pb-sub">Adet arttıkça birim fiyat düşer</span>
+      </span>
+      <span class="pb-cta">İncele</span>
+    </a>
+    <a class="pb-slide pb-gold" href="{% url 'products:list' %}">
+      <span class="pb-text">
+        <strong class="pb-title">Aynı gün kargo</strong>
+        <span class="pb-sub">Saat 11.00’e kadar ödemesi onaylanan siparişlerde</span>
+      </span>
+      <span class="pb-cta">Alışverişe başla</span>
+    </a>
+    <a class="pb-slide pb-rose" href="https://wa.me/{{ shop_whatsapp_display|cut:' '|cut:'+' }}" target="_blank" rel="noopener noreferrer">
+      <span class="pb-text">
+        <strong class="pb-title">WhatsApp’tan hızlı teklif al</strong>
+        <span class="pb-sub">Büyük adetler için bize yazın</span>
+      </span>
+      <span class="pb-cta">Yaz</span>
+    </a>
+  </div>
+  <div class="pb-dots" data-pb-dots></div>
+</section>

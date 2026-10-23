@@ -76,3 +76,14 @@ html.dark-mode .promo-timer-sep {
     font-size: 0.95rem;
   }
 }
+
+/* Mobile: keep the product row inside the pink frame (site.css lets every
+   .product-track bleed to the screen edges on phones, which pushed the cards
+   out of this box). */
+@media (max-width: 480px) {
+  .promo-section .product-track {
+    margin-inline: 0;
+    padding-inline: 0;
+    scroll-padding-inline: 0;
+  }
+}
