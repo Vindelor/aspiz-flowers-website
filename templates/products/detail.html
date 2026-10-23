@@ -1,83 +1,130 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static l10n %}
 {% block title %}{{ product.name }} - Çiçek Deposu{% endblock %}
 
 {% block extra_head %}
 <style>
-  .thumb-active { border-color: #7d2140; box-shadow: 0 0 0 1px #7d2140; }
+  /* ===== Ürün bilgi bölümü — Tasarım A (Atölye) =====
+     Tüm kurallar .pa kapsamında; site geneline sızmaz. Koyu mod: html.dark-mode */
+  .pa {
+    --pa-ink: #3a0f20;
+    --pa-muted: #755562;
+    --pa-line: #e6d3d9;
+    --pa-line-strong: #d9c3cb;
+    --pa-surface: #fffdfc;
+    --pa-placeholder: #efe3e0;
+    --pa-wine: #7d2140;
+    --pa-wine-soft: #f6e9ed;
+    --pa-gold: #8a6420;
+    --pa-green: #14804a;
+    --pa-radio: #b9a0a9;
+  }
+  html.dark-mode .pa {
+    --pa-ink: #f5eaee;
+    --pa-muted: #b898a5;
+    --pa-line: rgba(201, 167, 104, 0.22);
+    --pa-line-strong: rgba(201, 167, 104, 0.35);
+    --pa-surface: rgba(255, 255, 255, 0.04);
+    --pa-placeholder: #3a1d2a;
+    --pa-wine: #d1829e;
+    --pa-wine-soft: rgba(209, 130, 158, 0.14);
+    --pa-gold: #c9a768;
+    --pa-green: #3fbf80;
+    --pa-radio: #8a7355;
+  }
 
+  .pa-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (min-width: 768px)  { .pa-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px; } }
+  @media (min-width: 1100px) { .pa-grid { grid-template-columns: minmax(0, 460px) minmax(0, 1fr); gap: 56px; } }
+
+  /* Galeri */
+  .pa-stage { position: relative; aspect-ratio: 1 / 1; border-radius: 20px; overflow: hidden; background: var(--pa-placeholder); }
+  .pa-stage img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pa-empty { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--pa-muted); font-size: 14px; letter-spacing: .08em; }
+  .pa-counter { position: absolute; right: 12px; bottom: 12px; padding: 4px 10px; border-radius: 999px; background: rgba(74, 15, 36, .82); color: #fff; font-size: 12px; font-weight: 500; }
+  .pa-thumbs { display: flex; gap: 10px; margin-top: 14px; overflow-x: auto; padding-bottom: 2px; }
+  .pa-thumb { flex: none; width: 64px; height: 64px; padding: 0; border-radius: 12px; overflow: hidden; background: var(--pa-placeholder); border: 1px solid transparent; cursor: pointer; }
+  .pa-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pa-thumb.thumb-active { border: 2px solid var(--pa-muted); box-shadow: none; }
+  @media (min-width: 768px) { .pa-thumb { width: 84px; height: 84px; } .pa-thumbs { gap: 12px; margin-top: 16px; } }
+
+  /* Başlık */
+  .pa-eyebrow { display: flex; align-items: center; gap: 10px; color: var(--pa-gold); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+  .pa-eyebrow::before { content: ""; width: 24px; height: 1px; background: currentColor; }
+  .pa-title { margin: 12px 0 6px; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 36px; line-height: 1.05; color: var(--pa-ink); }
+  .pa-sku { font-size: 12px; letter-spacing: .08em; color: var(--pa-muted); }
+  .pa-rule { height: 1px; background: var(--pa-line); margin: 22px 0; border: 0; }
+  .pa-label { margin-bottom: 12px; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--pa-muted); }
+
+  /* Fiyat kademeleri */
+  .pa-tiers { display: flex; flex-direction: column; gap: 8px; }
   .tier-box {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    min-height: 104px;
-    padding: 0.9rem 0.9rem;
-    border-radius: var(--card-radius, 1rem);
-    border: 1px solid rgba(176, 146, 113, 0.35);
-    background: rgba(248, 239, 235, 0.72);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-    transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+    box-sizing: border-box; width: 100%; min-height: 56px; padding: 0 18px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    border-radius: 12px; border: 1px solid var(--pa-line); background: var(--pa-surface);
+    color: var(--pa-ink); text-align: left; text-decoration: none; cursor: pointer;
+    font: inherit; transform: none; box-shadow: none;
+    transition: border-color .2s ease, background-color .2s ease;
   }
+  .tier-box:hover { border-color: var(--pa-wine); transform: none; }
+  .tier-box.tier-active { border-color: var(--pa-wine); background: var(--pa-wine-soft); box-shadow: none; }
+  .pa-tier-left { display: flex; align-items: center; gap: 12px; }
+  .pa-radio { flex: none; width: 18px; height: 18px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid var(--pa-radio); display: flex; align-items: center; justify-content: center; }
+  .tier-active .pa-radio { border-color: var(--pa-wine); }
+  .tier-active .pa-radio::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--pa-wine); }
+  .tier-box .tier-label { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--pa-ink); }
+  .tier-active .tier-label { font-weight: 600; }
+  .tier-box .tier-price { margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1; color: var(--pa-ink); white-space: nowrap; }
+  .tier-active .tier-price { color: var(--pa-wine); }
+  .tier-box .tier-price small { font-size: 18px; font-weight: 600; font-family: inherit; }
+  .tier-box .tier-price em { font-style: normal; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: var(--pa-muted); }
+  .tier-box[data-tier-contact] { border-style: solid; background: var(--pa-surface); }
+  .tier-box[data-tier-contact] .tier-price { display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; color: var(--pa-green); }
 
-  .tier-box:hover {
-    border-color: var(--accent-gold, #b8925a);
-    transform: translateY(-1px);
+  /* Avantaj listesi */
+  .pa-perks { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 22px 0; padding: 0; }
+  .pa-perks li { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--pa-ink); }
+  .pa-perks svg { flex: none; stroke: var(--pa-wine); }
+
+  /* Adet + toplam + CTA */
+  .pa-qty-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .pa-qty-row label { font-size: 13px; font-weight: 600; color: var(--pa-ink); }
+  .pa-stepper { display: flex; align-items: center; height: 44px; border: 1px solid var(--pa-line-strong); border-radius: 12px; background: var(--pa-surface); overflow: hidden; }
+  .pa-stepper button { width: 44px; height: 44px; padding: 0; border: 0; background: transparent; color: var(--pa-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .pa-stepper button:disabled { opacity: .4; cursor: not-allowed; }
+  .pa-stepper svg { stroke: currentColor; }
+  .pa-stepper input { width: 64px; height: 44px; padding: 0; border: 0; outline: 0; background: transparent; text-align: center; font-size: 16px; font-weight: 600; color: var(--pa-ink); -moz-appearance: textfield; appearance: textfield; }
+  .pa-stepper input::-webkit-outer-spin-button, .pa-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  /* site.css [data-qty-input] / html.dark-mode [data-qty-input] (sepet sayfası vb.) rengi ve zemini eziyor; burada kapsamlı olarak geri alınıyor */
+  .pa .pa-stepper input[data-qty-input],
+  html.dark-mode .pa .pa-stepper input[data-qty-input] { background: transparent; color: var(--pa-ink); border: 0; }
+  .pa-stepper:focus-within { border-color: var(--pa-wine); }
+  .pa-total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; font-size: 13px; color: var(--pa-muted); }
+  .pa-total strong { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600; color: var(--pa-ink); }
+
+  .luxe-cta {
+    box-sizing: border-box; width: 100%; min-height: 56px; border: 0; cursor: pointer;
+    border-radius: 14px; background: var(--pa-wine); color: #fff;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font: 700 14px/1 'Inter', sans-serif; letter-spacing: .06em; text-transform: uppercase;
+    transition: filter .2s ease, transform .2s ease;
   }
+  html.dark-mode .luxe-cta { background: #8c2a4b; }
+  .luxe-cta:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+  .luxe-cta:disabled { background: var(--pa-placeholder); color: var(--pa-muted); cursor: not-allowed; }
+  .luxe-cta svg { stroke: currentColor; }
 
-  .tier-box.tier-active {
-    border-color: var(--accent-gold, #b8925a);
-    background: rgba(176, 146, 113, 0.12);
-    box-shadow: 0 10px 24px -16px rgba(109, 26, 53, 0.45);
-  }
+  .pa-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; font-size: 13px; }
+  .pa-foot a { display: inline-flex; align-items: center; gap: 8px; color: var(--pa-green); font-weight: 600; text-decoration: none; }
+  .pa-foot a:hover { text-decoration: underline; }
+  .pa-foot a svg { stroke: currentColor; }
+  .pa-foot span { color: var(--pa-muted); }
 
-  .tier-box .tier-label {
-    display: block;
-    font-size: 0.64rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-muted, #7c6d63);
-  }
-
-  .tier-box .tier-price {
-    display: block;
-    margin-top: 0.1rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--accent-plum, #6d1a35);
-  }
-
-  .tier-box[data-tier-contact] {
-    border-style: dashed;
-    background: rgba(255, 255, 255, 0.12);
-  }
-
-  .tier-box[data-tier-contact] .tier-price {
-    color: #1ea66b;
-  }
-
+  /* Accordion (değişmedi) */
   .accordion-panel { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
   .accordion-icon { transition: transform .2s ease; }
-  .luxe-cta {
-    min-height: var(--btn-height, 54px);
-    padding: 0.95rem 1.1rem;
-    border-radius: var(--btn-radius, 0.9rem);
-    color: #f6ecd4;
-    background-image: linear-gradient(110deg, #3c0c1c 0%, #7d2140 45%, #4a0f24 100%);
-    background-size: 200% auto;
-    background-position: left center;
-    border: 1px solid rgba(201, 167, 104, 0.55);
-    box-shadow: 0 10px 24px -10px rgba(74, 15, 36, 0.6);
-    transition: background-position .5s ease, box-shadow .3s ease, transform .3s ease, border-color .3s ease;
-  }
-  .luxe-cta:hover:not(:disabled) {
-    background-position: right center;
-    border-color: rgba(227, 204, 148, 0.9);
-    box-shadow: 0 12px 30px -8px rgba(140, 42, 75, 0.65);
-    transform: translateY(-1px);
-  }
+
+  @media (max-width: 767px) { .pa-title { font-size: 32px; } }
 </style>
 {% endblock %}
 
@@ -89,29 +136,28 @@
     <span class="text-wine-700 dark:text-[#e8dfc8]">{{ product.name }}</span>
   </nav>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+  {% with hp=product.highest_priced_tier %}
+  <div class="pa pa-grid">
     <!-- Gallery -->
     <div>
-      <div class="relative aspect-square bg-cream-100 dark:bg-[#3a1d2a] rounded-2xl overflow-hidden mb-3">
+      <div class="pa-stage">
         {% if product.primary_image %}
-          <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}"
-               class="w-full h-full object-cover" data-gallery-main>
+          <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}" data-gallery-main>
         {% else %}
-          <div class="w-full h-full flex items-center justify-center text-wine-200 dark:text-white/20" data-gallery-main>Görsel yok</div>
+          <div class="pa-empty" data-gallery-main>Görsel yok</div>
         {% endif %}
 
         {% if product.images.count > 1 %}
-          <span class="absolute bottom-3 right-3 bg-wine-900/80 text-white text-xs font-medium px-2 py-1 rounded-pill"
-                data-gallery-counter>1/{{ product.images.count }}</span>
+          <span class="pa-counter" data-gallery-counter>1/{{ product.images.count }}</span>
         {% endif %}
       </div>
 
       {% if product.images.count > 1 %}
-        <div class="flex gap-2 overflow-x-auto">
+        <div class="pa-thumbs">
           {% for img in product.images.all %}
             <button type="button" data-gallery-thumb data-full-src="{{ img.image.url }}"
-                    class="shrink-0 w-16 h-16 rounded-lg border-2 {% if forloop.first %}thumb-active{% else %}border-cream-200 dark:border-white/10{% endif %} overflow-hidden">
-              <img src="{{ img.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                    class="pa-thumb {% if forloop.first %}thumb-active{% endif %}">
+              <img src="{{ img.image.url }}" alt="{{ product.name }}">
             </button>
           {% endfor %}
         </div>
@@ -121,80 +167,98 @@
     <!-- Info -->
     <div>
       {% if product.display_badge %}
-        <span class="inline-block text-white text-xs font-semibold px-3 py-1 rounded-pill bg-gradient-to-r {{ product.badge_gradient_classes }} mb-2">
-          {{ product.display_badge|upper }}
-        </span>
+        <div class="pa-eyebrow">{{ product.display_badge }}</div>
       {% endif %}
 
-      <h1 class="font-serif text-2xl text-wine-900 dark:text-[#f5f3ef] mb-1">{{ product.name }}</h1>
-      <p class="text-xs text-wine-400 dark:text-[#a39c8f] mb-4">SKU: {{ product.sku }}</p>
+      <h1 class="pa-title">{{ product.name }}</h1>
+      <div class="pa-sku">SKU {{ product.sku }}</div>
+      <hr class="pa-rule">
 
       {% if product.price_tiers.all %}
-        <div class="grid grid-cols-3 gap-2 mb-4">
+        <div class="pa-label">Toptan fiyat kademeleri</div>
+        <div class="pa-tiers">
           {% for tier in product.price_tiers.all %}
             {% if tier.is_contact_price %}
               <a href="https://wa.me/{{ shop_whatsapp_display|cut:' '|cut:'+' }}?text={{ product.name|urlencode }}{{ ' - '|urlencode }}{{ tier.min_quantity|stringformat:'s'|add:'+ adet için fiyat almak istiyorum.'|urlencode }}"
-                 target="_blank" rel="noopener noreferrer" data-tier-contact
-                 class="tier-box text-left">
-                <span class="tier-label">Min. {{ tier.min_quantity }} adet</span>
-                <span class="tier-price"><i class="fa-brands fa-whatsapp"></i> Teklif Al</span>
+                 target="_blank" rel="noopener noreferrer" data-tier-contact data-tier-min-qty="{{ tier.min_quantity }}"
+                 class="tier-box">
+                <span class="pa-tier-left">
+                  <span class="pa-radio"></span>
+                  <span class="tier-label">Min. {{ tier.min_quantity }} adet</span>
+                </span>
+                <span class="tier-price">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-4.2A8 8 0 1 1 8.4 18.8z"/><path d="M9 9.5c.3 2.3 2.3 4.4 5 5l1.2-1.2-1.8-1-.9.7c-.8-.4-1.5-1.1-1.9-1.9l.7-.9-1-1.8z"/></svg>
+                  Teklif al
+                </span>
               </a>
             {% else %}
-              <button type="button" data-tier-select data-tier-min-qty="{{ tier.min_quantity }}"
-                      class="tier-box {% if tier.pk == product.highest_priced_tier.pk %}tier-active{% endif %} text-left">
-                <span class="tier-label">Min. {{ tier.min_quantity }} adet</span>
-                <span class="tier-price">
-                  <span class="price-display">
-                    <span class="price-value">{{ tier.price|floatformat:"-2" }}</span>
-                    <span class="price-unit">₺</span>
-                  </span>
+              <button type="button" data-tier-select data-tier-min-qty="{{ tier.min_quantity }}" data-tier-price="{{ tier.price|unlocalize }}"
+                      class="tier-box {% if tier.pk == hp.pk %}tier-active{% endif %}">
+                <span class="pa-tier-left">
+                  <span class="pa-radio"></span>
+                  <span class="tier-label">Min. {{ tier.min_quantity }} adet</span>
                 </span>
+                <span class="tier-price">{{ tier.price|floatformat:"-2" }}<small>₺</small> <em>/ adet</em></span>
               </button>
             {% endif %}
           {% endfor %}
         </div>
       {% endif %}
 
-      <ul class="space-y-2 mb-5 text-xs text-wine-500 dark:text-[#a39c8f]">
-        <li class="flex items-center gap-2">
-          <i class="fa-regular fa-clock text-wine-300 dark:text-[#8a7355]"></i>
-          Saat 11.00’e kadar ödemesi onaylanan siparişlerde aynı gün kargo
+      <ul class="pa-perks">
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span>Saat 11.00’e kadar onaylanan siparişlerde aynı gün kargo</span>
         </li>
-        <li class="flex items-center gap-2">
-          <i class="fa-solid fa-truck-fast text-wine-300 dark:text-[#8a7355]"></i>
-          Türkiye geneline kargo ve ambar ile gönderim
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h11v10H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7.5" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg>
+          <span>Türkiye geneline kargo ve ambar ile gönderim</span>
         </li>
-        <li class="flex items-center gap-2">
-          <i class="fa-solid fa-rotate text-wine-300 dark:text-[#8a7355]"></i>
-          Adet arttıkça avantajlı birim fiyat
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16l5-5 4 4 7-8"/><path d="M15 7h5v5"/></svg>
+          <span>Adet arttıkça avantajlı birim fiyat</span>
         </li>
       </ul>
 
-      <form action="{% url 'cart:add' product.id %}" method="post" class="flex items-center gap-3 mb-3">
+      <form action="{% url 'cart:add' product.id %}" method="post">
         {% csrf_token %}
-        <input type="number" name="quantity" data-qty-input
-               value="{{ product.highest_priced_tier.min_quantity|default:1 }}" min="1"
-               max="{{ product.stock_quantity }}" {% if product.is_sold_out %}disabled{% endif %}
-               class="w-24 rounded-lg border border-cream-200 dark:border-white/10 px-3 py-2 text-sm
-                      focus:outline-none focus:ring-1 focus:ring-[#c9a768] focus:border-[#c9a768]">
-        <button type="submit" {% if product.is_sold_out %}disabled{% endif %}
-                  class="flex-1 min-h-[54px] rounded-[0.9rem] px-4 py-3.5 font-bold text-sm sm:text-base tracking-normal uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-[#6d1a35]/20
-                    text-[#f6ecd4]
-                       {% if product.is_sold_out %}bg-wine-100 dark:bg-white/10 text-wine-300 dark:text-[#8a7355] cursor-not-allowed{% else %}luxe-cta text-[#f6ecd4]{% endif %}">
-          <i class="fa-solid fa-cart-shopping"></i>
-          {% if product.is_sold_out %}Tükendi{% else %}SİPARİŞ LİSTESİNE EKLE{% endif %}
+        <div class="pa-qty-row">
+          <label for="qa">Adet</label>
+          <div class="pa-stepper">
+            <button type="button" data-qty-dec aria-label="Azalt" {% if product.is_sold_out %}disabled{% endif %}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h12"/></svg>
+            </button>
+            <input id="qa" type="number" name="quantity" data-qty-input inputmode="numeric"
+                   value="{{ hp.min_quantity|default:1 }}" min="1"
+                   max="{{ product.stock_quantity }}" {% if product.is_sold_out %}disabled{% endif %}>
+            <button type="button" data-qty-inc aria-label="Artır" {% if product.is_sold_out %}disabled{% endif %}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="pa-total" data-qty-total hidden>
+          <span data-total-formula></span>
+          <strong data-total-amount></strong>
+        </div>
+
+        <button type="submit" {% if product.is_sold_out %}disabled{% endif %} class="luxe-cta">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2.5l2 11h10l2-8H7"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></svg>
+          {% if product.is_sold_out %}Tükendi{% else %}Sipariş listesine ekle{% endif %}
         </button>
       </form>
 
-      <a href="https://wa.me/{{ shop_whatsapp_display|cut:' '|cut:'+' }}?text={{ product.name|urlencode }}{{ ' hakkında bilgi almak istiyorum.'|urlencode }}"
-         target="_blank" rel="noopener noreferrer"
-         class="inline-flex items-center gap-2 text-base font-medium text-wine-600 dark:text-[#d8cdbd] hover:text-wine-800 mb-2">
-        <i class="fa-brands fa-whatsapp text-emerald-600"></i> WHATSAPP’TAN BİLGİ AL
-      </a>
-
-      <p class="text-xs text-wine-400 dark:text-[#a39c8f]">{{ product.stock_quantity }} adet stokta</p>
+      <div class="pa-foot">
+        <a href="https://wa.me/{{ shop_whatsapp_display|cut:' '|cut:'+' }}?text={{ product.name|urlencode }}{{ ' hakkında bilgi almak istiyorum.'|urlencode }}"
+           target="_blank" rel="noopener noreferrer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-4.2A8 8 0 1 1 8.4 18.8z"/><path d="M9 9.5c.3 2.3 2.3 4.4 5 5l1.2-1.2-1.8-1-.9.7c-.8-.4-1.5-1.1-1.9-1.9l.7-.9-1-1.8z"/></svg>
+          WhatsApp’tan bilgi al
+        </a>
+        <span>{{ product.stock_quantity }} adet stokta</span>
+      </div>
     </div>
   </div>
+  {% endwith %}
 
   <!-- Accordion: description / shipping / payment -->
   <div class="mt-8 max-w-3xl border-t border-cream-200 dark:border-white/10">

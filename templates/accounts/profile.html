@@ -1,109 +1,105 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Profilim - Çiçek Deposu{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'vendor/css/profile-glass.css' %}">
+{% endblock %}
 {% block content %}
-  <div class="account-page">
-    <div class="account-grid">
+  <div class="pf-stage">
+    <span class="pf-orb pf-orb--a" aria-hidden="true"></span>
+    <span class="pf-orb pf-orb--b" aria-hidden="true"></span>
+    <span class="pf-orb pf-orb--c" aria-hidden="true"></span>
 
-      <div class="account-card">
-        <div class="account-card-header">
-          <div class="account-avatar"><i class="fa-regular fa-user"></i></div>
+    <div class="pf-grid">
+
+      <section class="pf-card">
+        <div class="pf-head">
+          <div class="pf-avatar"><span>{{ user.first_name|default:user.phone|slice:":1" }}</span></div>
           <div>
             <h1>Profil Bilgileri</h1>
             <p>Hesap bilgilerinizi buradan güncelleyebilirsiniz.</p>
           </div>
         </div>
 
-        <form method="post" class="account-form">
+        <form method="post" class="pf-form">
           {% csrf_token %}
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="{{ form.first_name.id_for_label }}">Adı</label>
-              <div class="input-with-icon">
-                <i class="fa-regular fa-user field-icon"></i>
+          <div class="pf-row">
+            <div>
+              <div class="pf-field">
+                <label for="{{ form.first_name.id_for_label }}">Adı</label>
                 {{ form.first_name }}
               </div>
-              {% for error in form.first_name.errors %}
-                <span class="error-message">{{ error }}</span>
-              {% endfor %}
+              {% for error in form.first_name.errors %}<span class="pf-error">{{ error }}</span>{% endfor %}
             </div>
-
-            <div class="form-group">
-              <label for="{{ form.last_name.id_for_label }}">Soyadı</label>
-              <div class="input-with-icon">
-                <i class="fa-regular fa-user field-icon"></i>
+            <div>
+              <div class="pf-field">
+                <label for="{{ form.last_name.id_for_label }}">Soyadı</label>
                 {{ form.last_name }}
               </div>
-              {% for error in form.last_name.errors %}
-                <span class="error-message">{{ error }}</span>
-              {% endfor %}
+              {% for error in form.last_name.errors %}<span class="pf-error">{{ error }}</span>{% endfor %}
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="{{ form.phone.id_for_label }}">Telefon</label>
-            <div class="input-with-icon">
-              <i class="fa-solid fa-phone field-icon"></i>
+          <div>
+            <div class="pf-field is-locked">
+              <label for="{{ form.phone.id_for_label }}">Telefon</label>
               {{ form.phone }}
             </div>
-            {% for error in form.phone.errors %}
-              <span class="error-message">{{ error }}</span>
-            {% endfor %}
+            {% for error in form.phone.errors %}<span class="pf-error">{{ error }}</span>{% endfor %}
           </div>
+          <p class="pf-lock"><i class="fa-solid fa-lock" aria-hidden="true"></i> Telefon numaranız hesap kimliğinizdir, değiştirilemez.</p>
 
-          <div class="form-group">
-            <label for="{{ form.address.id_for_label }}">Adres</label>
-            <div class="input-with-icon input-with-icon-top">
-              <i class="fa-solid fa-location-dot field-icon"></i>
+          <div>
+            <div class="pf-field">
+              <label for="{{ form.address.id_for_label }}">Adres</label>
               {{ form.address }}
             </div>
-            {% for error in form.address.errors %}
-              <span class="error-message">{{ error }}</span>
-            {% endfor %}
+            {% for error in form.address.errors %}<span class="pf-error">{{ error }}</span>{% endfor %}
           </div>
 
-          {% for error in form.non_field_errors %}
-            <span class="error-message">{{ error }}</span>
-          {% endfor %}
+          {% for error in form.non_field_errors %}<span class="pf-error">{{ error }}</span>{% endfor %}
 
-          <button type="submit" class="login-btn">
-            <span class="btn-label">Kaydet</span>
-            <i class="fa-solid fa-check"></i>
+          <button type="submit" class="pf-save">
+            <span>Kaydet</span>
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
           </button>
         </form>
-      </div>
+      </section>
 
-      <div class="account-card">
-        <div class="account-card-header">
-          <div class="account-avatar"><i class="fa-solid fa-bag-shopping"></i></div>
-          <div>
-            <h1>Son Siparişlerim</h1>
-            <p>En son verdiğiniz siparişlerin özeti.</p>
-          </div>
-        </div>
+      <div class="pf-side">
+        <section class="pf-card">
+          <div class="pf-icon"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></div>
+          <h2>Son Siparişlerim</h2>
 
-        {% if orders %}
-          <div class="order-list">
-            {% for order in orders %}
-              <a href="{% url 'orders:detail' order.pk %}" class="order-row">
-                <span class="order-id">#{{ order.pk }}</span>
-                <span class="order-status status-{{ order.status }}">{{ order.get_status_display }}</span>
-                <span class="order-total">
-                  <span class="price-display">
-                    <span class="price-value">{{ order.total|floatformat:"-2" }}</span>
-                    <span class="price-unit">₺</span>
-                  </span>
-                </span>
-              </a>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="account-empty">Henüz siparişiniz yok.</p>
-        {% endif %}
+          {% if orders %}
+            <div class="pf-orders">
+              {% for order in orders %}
+                <a href="{% url 'orders:detail' order.pk %}" class="pf-order">
+                  <b>#{{ order.pk }}</b>
+                  <span class="order-status status-{{ order.status }}">{{ order.get_status_display }}</span>
+                  <span>{{ order.total|floatformat:"-2" }} ₺</span>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p>Henüz siparişiniz yok.</p>
+            <div style="height: 1.25rem"></div>
+          {% endif %}
 
-        <a href="{% url 'orders:history' %}" class="inline-link account-view-all">
-          Tüm siparişleri gör <i class="fa-solid fa-arrow-right"></i>
-        </a>
+          <a href="{% url 'orders:history' %}" class="pf-link">
+            Tüm siparişleri gör <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </a>
+        </section>
+
+        <section class="pf-card">
+          <h2>Toplu alım teklifi</h2>
+          <p>Adetli siparişlerde fiyat listesi için bize yazın.</p>
+          <a class="pf-wa" target="_blank" rel="noopener noreferrer"
+             href="https://wa.me/{{ shop_whatsapp_display|cut:' '|cut:'+' }}?text={{ 'Merhaba, toptan yapay çiçek fiyat listesi almak istiyorum.'|urlencode }}">
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp’tan yazın
+          </a>
+        </section>
       </div>
 
     </div>
