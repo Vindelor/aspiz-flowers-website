@@ -1079,7 +1079,7 @@ html.dark-mode .auth-tab.active {
   display: none;
 }
 
-.auth-panel h1 {
+.auth-panel h2 {
   font-family: 'Bodoni Moda', 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 1.9rem;
@@ -1464,7 +1464,7 @@ html.dark-mode .register-link {
     padding: 0.5rem 0.75rem;
     font-size: 0.75rem;
   }
-  .auth-panel h1 {
+  .auth-panel h2 {
     font-size: 1.4rem;
   }
   .auth-panel > p {

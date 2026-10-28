@@ -46,7 +46,7 @@
 
         <div class="auth-panel active" data-auth-panel="login" id="authPanelLogin"
           role="tabpanel" aria-labelledby="authTabLogin">
-          <h1 id="authModalTitle">Hoş Geldiniz</h1>
+          <h2 id="authModalTitle">Hoş Geldiniz</h2>
           <p>Telefon numaranızla giriş kodu alın, şifreye gerek yok.</p>
 
           <form method="post" action="{% url 'accounts:login' %}" data-auth-form>
@@ -104,7 +104,7 @@
 
         <div class="auth-panel" data-auth-panel="register" id="authPanelRegister"
           role="tabpanel" aria-labelledby="authTabRegister" hidden>
-          <h1>Hemen Kaydolun</h1>
+          <h2>Hemen Kaydolun</h2>
           <p>Yeni hesap oluşturarak alışverişe başlayın.</p>
 
           <form method="post" action="{% url 'accounts:register' %}" data-auth-form>

@@ -1,4 +1,5 @@
-from django.contrib import admin
+import phonenumbers
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm as BaseUserChangeForm
 
@@ -27,7 +28,8 @@ class UserAdmin(BaseUserAdmin):
     # the real identity — see apps/accounts/models.py), so the column would
     # always show blank.
 
-    list_display = ("username", "phone", "first_name", "last_name", "is_active", "is_staff")
+    list_display = ("username", "phone", "phone_ok", "first_name", "last_name", "last_login", "is_active", "is_staff")
+    actions = ["activate_users", "deactivate_users"]
     list_filter = BaseUserAdmin.list_filter
     search_fields = ("username", "phone", "first_name", "last_name")
     # The default add form only asks for username + password, which left
@@ -39,3 +41,23 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
 
+    @admin.display(boolean=True, description="Geçerli TR telefon")
+    def phone_ok(self, obj):
+        """False for 'x12' placeholders, foreign or malformed numbers: such
+        accounts can never receive the WhatsApp login code."""
+        try:
+            parsed = phonenumbers.parse((obj.phone or "").strip(), "TR")
+        except phonenumbers.NumberParseException:
+            return False
+        return phonenumbers.is_valid_number(parsed) and phonenumbers.region_code_for_number(parsed) == "TR"
+
+    @admin.action(description="Seçili kullanıcıları aktif et")
+    def activate_users(self, request, queryset):
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f"{updated} kullanıcı aktif edildi.", messages.SUCCESS)
+
+    @admin.action(description="Seçili kullanıcıları pasif et")
+    def deactivate_users(self, request, queryset):
+        # Never let an admin lock themselves out by accident.
+        updated = queryset.exclude(pk=request.user.pk).update(is_active=False)
+        self.message_user(request, f"{updated} kullanıcı pasif edildi.", messages.SUCCESS)

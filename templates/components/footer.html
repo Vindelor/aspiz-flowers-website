@@ -19,6 +19,7 @@
         <ul class="footer-links">
           <li><a href="{% url 'core:home' %}">Anasayfa</a></li>
           <li><a href="{% url 'products:list' %}">Tüm Ürünler</a></li>
+          <li><a href="{% url 'blog:index' %}">Blog</a></li>
           {% if user.is_authenticated %}
             <li><a href="{% url 'orders:history' %}">Siparişlerim</a></li>
           {% else %}

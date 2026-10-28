@@ -1,0 +1,342 @@
+/* Footer üstü: koyu, animasyonlu noktalı Türkiye haritası + bildirimler.
+   Markup: templates/components/turkey_map.html | Mantık: static/vendor/js/turkey-map.js
+   Bölüm sayfa kenarlarına ve footer'a boşluksuz bitişiktir (köşe yuvarlaklığı yok).
+   Her iki temada da koyu kalır; altın tonları site.css'in --accent-gold'u ile uyumludur. */
+
+.tmap {
+  --tm-dot: rgba(209, 130, 158, 0.26);
+  --tm-gold: #e2c488;
+  --tm-gold-soft: #c9a768;
+  margin: 2rem 0 0;          /* üst: sayfa içeriğinden ayırır; alt: 0 -> footer'a yapışık */
+  line-height: 0;            /* satır boşluğu footer ile arada çizgi bırakmasın */
+}
+
+.tmap-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  min-height: clamp(300px, 50vh, 460px);   /* sayfanın yaklaşık yarısı */
+  /* içerik, sitenin .container genişliğiyle hizalı; zemin ise kenardan kenara */
+  padding: 1.5rem max(1.25rem, calc((100% - 1320px) / 2 + 1.5rem));
+  border-top: 1px solid rgba(201, 167, 104, 0.4);
+  border-radius: 0;
+  background: radial-gradient(120% 140% at 8% 0%, #4a1228 0%, #2a0e1a 45%, #150709 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  direction: ltr;
+  line-height: 1.5;
+}
+
+.tmap-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 80% at 25% 50%, rgba(201, 167, 104, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+/* ---------- Harita ---------- */
+.tmap-map,
+.tmap-copy { position: relative; z-index: 1; }
+
+.tmap-map {
+  width: 100%;
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.tmap-dots { display: block; width: 100%; height: auto; }
+.tm-base { color: var(--tm-dot); }
+
+.tm-glow {
+  color: #e6c98a;
+  filter: drop-shadow(0 0 3px rgba(230, 201, 138, 0.8));
+}
+
+.tm-sweep { animation: tm-sweep 7s ease-in-out infinite; }
+@keyframes tm-sweep {
+  0%        { transform: translateX(0); }
+  60%, 100% { transform: translateX(780px); }
+}
+
+.tm-arc {
+  stroke: var(--tm-gold);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(226, 196, 136, 0.9));
+}
+.tm-arc.draw { animation: tm-draw 1.4s ease-out both; }
+@keyframes tm-draw {
+  from { stroke-dasharray: var(--len, 400); stroke-dashoffset: var(--len, 400); }
+  to   { stroke-dasharray: var(--len, 400); stroke-dashoffset: 0; }
+}
+
+.tm-hub {
+  fill: var(--tm-gold);
+  filter: drop-shadow(0 0 4px var(--tm-gold));
+}
+
+.tmap-feed {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tm-item {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 0;
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+
+.tm-item.is-active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 2;
+  transition: opacity 0.35s ease, visibility 0s;
+}
+
+.tm-pin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: var(--tm-gold);
+  box-shadow: 0 0 10px 2px rgba(226, 196, 136, 0.7);
+}
+
+.tm-pin::before,
+.tm-pin::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--tm-gold);
+  opacity: 0;
+}
+
+.tm-item.is-active .tm-pin::after  { animation: tm-pulse 1.8s ease-out infinite; }
+.tm-item.is-active .tm-pin::before { animation: tm-pulse 1.8s ease-out 0.6s infinite; }
+
+@keyframes tm-pulse {
+  0%   { transform: scale(0.5); opacity: 0.85; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+.tm-bubble {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: max-content;
+  max-width: 170px;
+  padding: 0.38rem 0.65rem;
+  border-radius: var(--radius-soft, 0.75rem);
+  border: 1px solid rgba(201, 167, 104, 0.55);
+  background: rgba(24, 9, 15, 0.84);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.8), 0 0 18px -4px rgba(201, 167, 104, 0.35);
+  color: #f5eaee;
+  font: 400 11px/1.35 "Inter", system-ui, sans-serif;
+  translate: var(--tm-nudge, 0px) 0;
+}
+
+.tm-item.is-active .tm-bubble { animation: tm-pop 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+@keyframes tm-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.92); }
+  to   { opacity: 1; transform: none; }
+}
+
+.tm-r .tm-bubble    { left: 12px; }
+.tm-l .tm-bubble    { right: 12px; }
+.tm-up .tm-bubble   { bottom: 10px; }
+.tm-down .tm-bubble { top: 10px; }
+
+.tm-meta {
+  color: #b898a5;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.tm-line { font-weight: 500; }
+
+.tm-line a {
+  color: var(--tm-gold);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.tm-line a:hover,
+.tm-line a:focus-visible { text-decoration: underline; }
+
+/* ---------- Sağdaki metin ---------- */
+.tmap-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
+  min-width: 0;
+  text-align: left;
+}
+
+.tmap-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--tm-gold-soft);
+  font: 600 0.68rem "Inter", sans-serif;
+  letter-spacing: 0.28em;
+}
+
+.tmap-eyebrow::before {
+  content: "";
+  width: 34px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--tm-gold-soft));
+}
+
+.tmap-title {
+  margin: 0;
+  color: #f5eaee;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.6rem, 2.6vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.12;
+}
+
+.tmap-title a {
+  color: var(--tm-gold);
+  text-decoration: none;
+  background: linear-gradient(90deg, #e2c488, #fff2cf, #e2c488);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: tm-shine 5s linear infinite;
+}
+@keyframes tm-shine { to { background-position: -200% 0; } }
+
+.tmap-text {
+  margin: 0;
+  color: #d9c6ce;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.tmap-text strong { color: #f5eaee; }
+
+.tmap-text a {
+  color: var(--tm-gold);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tmap-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tmap-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-pill, 30px);
+  border: 1px solid rgba(201, 167, 104, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  color: #f1e3d0;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.tmap-chips i { color: var(--tm-gold); }
+
+.tmap-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 1.5rem;
+  border: 0;
+  border-radius: var(--btn-radius, 0.9rem);
+  background: linear-gradient(135deg, #e6c98a, #b8925a);
+  color: #1e0d13;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  text-transform: uppercase;
+  box-shadow: 0 10px 24px -10px rgba(201, 167, 104, 0.6);
+  overflow: hidden;
+}
+
+.tmap-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.55) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: tm-cta 4s ease-in-out infinite;
+}
+@keyframes tm-cta { 60%, 100% { transform: translateX(120%); } }
+
+/* ---------- Giriş animasyonu (JS .js sınıfını ekleyince; JS yoksa her şey görünür) ---------- */
+.tmap.js .tmap-card {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.tmap.js.is-in .tmap-card { opacity: 1; transform: none; }
+
+.tmap.js .tmap-copy > * { opacity: 0; transform: translateY(14px); }
+.tmap.js.is-in .tmap-copy > * { animation: tm-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.tmap.js.is-in .tmap-copy > :nth-child(1) { animation-delay: 0.25s; }
+.tmap.js.is-in .tmap-copy > :nth-child(2) { animation-delay: 0.4s; }
+.tmap.js.is-in .tmap-copy > :nth-child(3) { animation-delay: 0.55s; }
+.tmap.js.is-in .tmap-copy > :nth-child(4) { animation-delay: 0.7s; }
+.tmap.js.is-in .tmap-copy > :nth-child(5) { animation-delay: 0.85s; }
+@keyframes tm-rise { to { opacity: 1; transform: none; } }
+
+/* ---------- Mobil: yığılır, kenardan kenara, footer'a bitişik ---------- */
+@media (max-width: 820px) {
+  .tmap { margin-top: 1.5rem; }
+  .tmap-card {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 1.1rem;
+    padding: 1.4rem 1.1rem 1.6rem;
+  }
+  .tmap-map { max-width: 100%; }
+  .tm-bubble { max-width: 150px; font-size: 10.5px; padding: 0.32rem 0.55rem; }
+  .tmap-title { font-size: 1.55rem; }
+  .tmap-text { font-size: 0.9rem; }
+  .tmap-cta { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tmap.js .tmap-card,
+  .tmap.js .tmap-copy > * { opacity: 1; transform: none; transition: none; animation: none !important; }
+  .tm-sweep, .tmap-cta::after, .tmap-title a, .tm-arc.draw,
+  .tm-item.is-active .tm-pin::before, .tm-item.is-active .tm-pin::after,
+  .tm-item.is-active .tm-bubble { animation: none !important; }
+  .tm-item, .tm-item.is-active { transition: none; }
+}
