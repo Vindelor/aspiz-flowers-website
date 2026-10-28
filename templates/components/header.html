@@ -17,6 +17,7 @@
         <nav class="header-nav-links">
           <a href="{% url 'core:home' %}">{% trans "Anasayfa" %}</a>
           <a href="{% url 'products:list' %}">{% trans "Tüm Ürünler" %}</a>
+          <a href="{% url 'blog:index' %}">{% trans "Blog" %}</a>
           {% if user.is_authenticated %}
           <a href="{% url 'orders:history' %}">{% trans "Siparişlerim" %}</a>
           {% endif %}
@@ -130,6 +131,7 @@
         <ul class="sidebar-links">
           <li><a href="{% url 'core:home' %}">{% trans "Anasayfa" %}</a></li>
           <li><a href="{% url 'products:list' %}">{% trans "Tüm Ürünler" %}</a></li>
+          <li><a href="{% url 'blog:index' %}">{% trans "Blog" %}</a></li>
           {% if user.is_authenticated %}
           <li><a href="{% url 'orders:history' %}">{% trans "Siparişlerim" %}</a></li>
           <li><a href="{% url 'accounts:profile' %}">{% trans "Hesabım" %}</a></li>
