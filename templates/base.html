@@ -7,7 +7,9 @@
   <meta name="theme-color" content="#12080c">
   <meta name="color-scheme" content="light dark">
   <title>{% block title %}toptan yapay çiçek | ASPIZ FLOWERS{% endblock %}</title>
+  {% block meta_description %}
   <meta name="description" content="ASPIZ FLOWERS, işletmeler için toptan yapay çiçek ve toptan yapay bitki tedariki sunar. Geniş ürün çeşitlerini inceleyin, toplu alım ihtiyaçlarınız için teklif alın.">
+  {% endblock %}
   <link rel="icon" type="image/svg+xml" href="{% static 'src/img/logo.svg' %}">
   <link rel="apple-touch-icon" href="{% static 'src/img/logo.svg' %}">
   <script>
@@ -23,6 +25,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{% static 'vendor/css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/css/turkey-map.css' %}">
  
   <link rel="stylesheet" href="{% static 'src/output.css' %}">
 
@@ -57,6 +60,8 @@
       <i class="fa-brands fa-whatsapp"></i>
     </a>
   </div>
+
+  {% block pre_footer %}{% include "components/turkey_map.html" %}{% endblock %}
 
   {% include "components/footer.html" %}
 
@@ -99,6 +104,7 @@
   <script src="{% static 'vendor/js/product-slider.js' %}" defer></script>
   <script src="{% static 'vendor/js/auth-modal.js' %}" defer></script>
   <script src="{% static 'vendor/js/cart.js' %}" defer></script>
+  <script src="{% static 'vendor/js/turkey-map.js' %}" defer></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

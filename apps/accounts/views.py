@@ -67,6 +67,7 @@ _PENDING_REGISTRATION_MESSAGE = (
     "Kaydınız henüz doğrulanmamış. Lütfen \"Kayıt Ol\" sekmesinden aynı numarayla tekrar kayıt olup kodu girin."
 )
 _ACCOUNT_NOT_FOUND_MESSAGE = "Bu telefon numarasıyla kayıtlı bir hesap bulunamadı."
+_ACCOUNT_DISABLED_MESSAGE = "Bu numaraya ait hesap şu anda kapalı. Lütfen bizimle iletişime geçin."
 _CODE_SEND_FAILED_MESSAGE = "Giriş kodu gönderilemedi. Lütfen daha sonra tekrar deneyin."
 LOGIN_CODE_SENT_MESSAGE = "Kod WhatsApp'a gönderildi. Lütfen WhatsApp'taki kodu yazın."
 REGISTER_CODE_SENT_MESSAGE = "Hesabınızı doğrulamak için WhatsApp'a bir kod gönderdik. Lütfen WhatsApp'taki kodu yazın."
@@ -158,6 +159,10 @@ def login_request_view(request):
             # nasıl devam edeceğini söyle.
             if stale_unverified_users(lookup_key).exists():
                 return _auth_error(request, {"__all__": [_PENDING_REGISTRATION_MESSAGE]}, 400)
+            # Hesap var ama pasif (eski hesap / yönetici kapatmış): "bulunamadı"
+            # demek yerine kullanıcıya iletişime geçmesini söyle.
+            if User.objects.filter(phone__in=phone_candidates, is_active=False, is_staff=False, is_superuser=False).exists():
+                return _auth_error(request, {"__all__": [_ACCOUNT_DISABLED_MESSAGE]}, 400)
             return _auth_error(request, {"__all__": [_ACCOUNT_NOT_FOUND_MESSAGE]}, 400)
 
         # ===== FIX =====
