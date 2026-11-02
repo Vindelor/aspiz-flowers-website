@@ -75,9 +75,9 @@ class PriceTierInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "sku", "category", "stock_quantity", "stock_state", "badge_en", "is_active")
+    list_display = ("name", "sku", "category", "popular_order", "new_order", "deal_order", "badge_order", "stock_quantity", "stock_state", "badge_en", "is_active")
     list_filter = ("category", BadgeAdminFilter, "is_active")
-    list_editable = ("stock_quantity", "is_active")  # quick daily edit without opening the product
+    list_editable = ("popular_order", "new_order", "deal_order", "badge_order", "stock_quantity", "is_active")  # quick daily edit without opening the product
     search_fields = ("name", "sku")
     prepopulated_fields = {"slug": ("name",)}
     inlines = [ProductImageInline, PriceTierInline]
