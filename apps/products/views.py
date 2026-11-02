@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -8,17 +9,21 @@ from .models import Category, Product
 # fazlasını göstermiyoruz, tamamı için "Tüm sonuçları gör" linki var.
 LIVE_SEARCH_LIMIT = 8
 
+# Admin'da bölüm sırası (popular_order, new_order ...) verilen ürünler listenin başında.
+def pinned_first(field):
+    return F(field).asc(nulls_last=True)
+
 
 def product_list(request):
     products = Product.objects.filter(is_active=True).select_related("category")
     active_filter = request.GET.get("filter")
 
     if active_filter == "new":
-        products = products.order_by("-created_at")
+        products = products.order_by(pinned_first("new_order"), "-created_at")
     elif active_filter == "deal":
-        products = products.filter(discount_percent__gt=0).order_by("-discount_percent", "-created_at")
+        products = products.filter(discount_percent__gt=0).order_by(pinned_first("deal_order"), "-discount_percent", "-created_at")
     elif active_filter == "popular":
-        products = products.filter(badge=Product.Badge.POPULAR).order_by("-created_at")
+        products = products.filter(badge=Product.Badge.POPULAR).order_by(pinned_first("popular_order"), "-created_at")
     else:
         active_filter = ""
 
@@ -26,7 +31,7 @@ def product_list(request):
     badge_filter = request.GET.get("badge") or ""
     badge_filter_label = ""
     if badge_filter and badge_filter in Product.Badge.values and badge_filter != Product.Badge.NONE:
-        products = products.filter(badge=badge_filter).order_by("-created_at")
+        products = products.filter(badge=badge_filter).order_by(pinned_first("badge_order"), "-created_at")
         badge_filter_label = dict(Product.Badge.choices)[badge_filter]
     else:
         badge_filter = ""
@@ -94,11 +99,11 @@ def category_detail(request, slug):
     active_filter = request.GET.get("filter")
 
     if active_filter == "new":
-        products = products.order_by("-created_at")
+        products = products.order_by(pinned_first("new_order"), "-created_at")
     elif active_filter == "deal":
-        products = products.filter(discount_percent__gt=0).order_by("-discount_percent", "-created_at")
+        products = products.filter(discount_percent__gt=0).order_by(pinned_first("deal_order"), "-discount_percent", "-created_at")
     elif active_filter == "popular":
-        products = products.filter(badge=Product.Badge.POPULAR).order_by("-created_at")
+        products = products.filter(badge=Product.Badge.POPULAR).order_by(pinned_first("popular_order"), "-created_at")
     else:
         active_filter = ""
 

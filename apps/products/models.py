@@ -79,6 +79,19 @@ class Product(models.Model):
     stock_quantity = models.PositiveIntegerField(default=0)
     low_stock_threshold = models.PositiveIntegerField(default=10)
 
+    # Manual display position per homepage section (1 = first, 2 = second ...).
+    # Leave blank for the automatic order (newest first). Each section has its
+    # own number, so a product can be 1st in "Popular" and 3rd in "New".
+    popular_order = models.PositiveIntegerField(
+        null=True, blank=True, help_text="Position in the Popular section (1 = first). Blank = automatic.")
+    new_order = models.PositiveIntegerField(
+        null=True, blank=True, help_text="Position in the New Products section (1 = first). Blank = automatic.")
+    deal_order = models.PositiveIntegerField(
+        null=True, blank=True, help_text="Position in the Deals section (1 = first). Blank = automatic.")
+    badge_order = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text="Position in its badge section: Editor's Choice / New Season / Special Series / Low Stock (1 = first). Blank = automatic.")
+
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

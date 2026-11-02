@@ -1,3 +1,4 @@
+from django.db.models import F
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -16,13 +17,20 @@ EXTRA_BADGE_SECTION_TITLES = {
 }
 
 
+# Manually pinned products (popular_order / new_order / deal_order /
+# badge_order = 1, 2, 3 ...) come first in their section; the rest keep the
+# section's normal order after them.
+def pinned_first(field):
+    return F(field).asc(nulls_last=True)
+
+
 def home(request):
     categories = Category.objects.all()
     active_products = Product.objects.filter(is_active=True).select_related("category")
 
     badge_sections = []
     for badge_value, title in EXTRA_BADGE_SECTION_TITLES.items():
-        products = active_products.filter(badge=badge_value).order_by("-created_at")[:12]
+        products = active_products.filter(badge=badge_value).order_by(pinned_first("badge_order"), "-created_at")[:12]
         if products:
             badge_sections.append({
                 "title": title,
@@ -33,9 +41,9 @@ def home(request):
     # Ordered list of the home page sections that actually have products, so
     # the template can drop the promo banner between the 3rd and 4th section
     # no matter which optional sections (popular / deals / badges) exist.
-    popular_products = active_products.filter(badge=Product.Badge.POPULAR)[:12]
-    new_products = active_products.order_by("-created_at")[:12]
-    deal_products = active_products.filter(discount_percent__gt=0)[:12]
+    popular_products = active_products.filter(badge=Product.Badge.POPULAR).order_by(pinned_first("popular_order"), "-created_at")[:12]
+    new_products = active_products.order_by(pinned_first("new_order"), "-created_at")[:12]
+    deal_products = active_products.filter(discount_percent__gt=0).order_by(pinned_first("deal_order"), "-created_at")[:12]
 
     sections = []
     if popular_products:
@@ -55,9 +63,9 @@ def home(request):
     context = {
         "sections": sections,
         "categories": categories,
-        "new_products": active_products.order_by("-created_at")[:12],
-        "deal_products": active_products.filter(discount_percent__gt=0)[:12],
-        "popular_products": active_products.filter(badge=Product.Badge.POPULAR)[:12],
+        "new_products": new_products,
+        "deal_products": deal_products,
+        "popular_products": popular_products,
 
         "badge_sections": badge_sections,
 
