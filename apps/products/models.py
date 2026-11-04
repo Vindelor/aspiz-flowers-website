@@ -67,7 +67,24 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
     sku = models.CharField("SKU", max_length=30, unique=True)
-    description = models.TextField(blank=True)
+    description = models.TextField(
+        blank=True,
+        help_text=(
+            "Ürün açıklaması. Boş satırla paragraf ayırın. '## Başlık' ile alt başlık (H2), "
+            "[bağlantı metni](/products/category/yesillikler/) ile iç link ekleyebilirsiniz."
+        ),
+    )
+
+    # --- SEO (all optional: blank = automatic fallback in the template) ---
+    seo_title = models.CharField(
+        "SEO title", max_length=70, blank=True,
+        help_text="<title> etiketi. Boşsa: '<ürün adı> | ASPIZ FLOWERS'. İdeal: 50-60 karakter.")
+    meta_description = models.CharField(
+        max_length=200, blank=True,
+        help_text="Google sonuçlarında görünen açıklama. İdeal: 120-160 karakter.")
+    seo_h1 = models.CharField(
+        "H1 (sayfa başlığı)", max_length=200, blank=True,
+        help_text="Ürün sayfasındaki ana başlık. Boşsa ürün adı kullanılır.")
 
     badge = models.CharField(max_length=20, choices=Badge.choices, default=Badge.NONE)
     discount_percent = models.PositiveIntegerField(default=0)  # e.g. 15 -> "-%15" ribbon
@@ -216,6 +233,9 @@ class ProductImage(models.Model):
     """
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(upload_to="products/%Y/%m/", validators=[validate_image_size])
+    alt_text = models.CharField(
+        "ALT metni", max_length=200, blank=True,
+        help_text="Görselin kısa açıklaması (SEO + erişilebilirlik). Boşsa ürün adı kullanılır.")
     is_primary = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
 
