@@ -1,9 +1,29 @@
 {% extends "base.html" %}
-{% load static l10n %}
-{% block title %}{{ product.name }} - Çiçek Deposu{% endblock %}
+{% load static l10n seo_tags %}
+{% block title %}{{ seo_title }}{% endblock %}
+
+{% block meta_description %}{% if product.meta_description %}<meta name="description" content="{{ product.meta_description }}">{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block extra_head %}
+<link rel="canonical" href="{{ canonical_url }}">
+<meta property="og:type" content="product">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:site_name" content="ASPIZ FLOWERS">
+<meta property="og:title" content="{{ seo_title }}">
+{% if product.meta_description %}<meta property="og:description" content="{{ product.meta_description }}">{% endif %}
+<meta property="og:url" content="{{ canonical_url }}">
+{% if og_image %}<meta property="og:image" content="{{ og_image }}">{% endif %}
+<meta name="twitter:card" content="{% if og_image %}summary_large_image{% else %}summary{% endif %}">
+<meta name="twitter:title" content="{{ seo_title }}">
+{% if product.meta_description %}<meta name="twitter:description" content="{{ product.meta_description }}">{% endif %}
+<script type="application/ld+json">{{ json_ld|safe }}</script>
 <style>
+  /* Ürün açıklaması (render_description filtresi <p>, <h2>, <a> üretir) */
+  .pa-desc { font-size: 14px; line-height: 1.7; padding-bottom: 16px; }
+  .pa-desc p { margin: 0 0 .85rem; }
+  .pa-desc h2 { margin: 0 0 .6rem; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; font-weight: 600; line-height: 1.25; }
+  .pa-desc a { text-decoration: underline; text-underline-offset: 2px; }
+  .pa-desc a:hover { opacity: .8; }
   /* ===== Ürün bilgi bölümü — Tasarım A (Atölye) =====
      Tüm kurallar .pa kapsamında; site geneline sızmaz. Koyu mod: html.dark-mode */
   .pa {
@@ -142,7 +162,7 @@
     <div>
       <div class="pa-stage">
         {% if product.primary_image %}
-          <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}" data-gallery-main>
+          <img src="{{ product.primary_image.image.url }}" alt="{{ product.primary_image.alt_text|default:product.name }}" data-gallery-main>
         {% else %}
           <div class="pa-empty" data-gallery-main>Görsel yok</div>
         {% endif %}
@@ -155,9 +175,9 @@
       {% if product.images.count > 1 %}
         <div class="pa-thumbs">
           {% for img in product.images.all %}
-            <button type="button" data-gallery-thumb data-full-src="{{ img.image.url }}"
+            <button type="button" data-gallery-thumb data-full-src="{{ img.image.url }}" data-alt="{{ img.alt_text|default:product.name }}"
                     class="pa-thumb {% if forloop.first %}thumb-active{% endif %}">
-              <img src="{{ img.image.url }}" alt="{{ product.name }}">
+              <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}">
             </button>
           {% endfor %}
         </div>
@@ -170,7 +190,7 @@
         <div class="pa-eyebrow">{{ product.display_badge }}</div>
       {% endif %}
 
-      <h1 class="pa-title">{{ product.name }}</h1>
+      <h1 class="pa-title">{{ product.seo_h1|default:product.name }}</h1>
       <div class="pa-sku">SKU {{ product.sku }}</div>
       <hr class="pa-rule">
 
@@ -270,7 +290,7 @@
           <i class="fa-solid fa-chevron-down accordion-icon transition-transform duration-200 text-wine-300 dark:text-[#8a7355] text-xs"></i>
         </button>
         <div class="accordion-panel">
-          <p class="text-sm text-wine-600 dark:text-[#d8cdbd] leading-relaxed pb-4">{{ product.description }}</p>
+          <div class="pa-desc text-wine-600 dark:text-[#d8cdbd]">{{ product.description|render_description }}</div>
         </div>
       </div>
     {% endif %}

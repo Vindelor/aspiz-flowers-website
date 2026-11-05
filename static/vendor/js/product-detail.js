@@ -20,6 +20,7 @@
     currentIdx = idx;
     if (mainImg && mainImg.tagName === "IMG") {
       mainImg.src = thumb.dataset.fullSrc;
+      if (thumb.dataset.alt) mainImg.alt = thumb.dataset.alt;
     }
     thumbs.forEach((t) => t.classList.remove("thumb-active"));
     thumb.classList.add("thumb-active");

@@ -1,7 +1,11 @@
+import json
+
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 
 from .models import Category, Product
 
@@ -121,6 +125,56 @@ def category_detail(request, slug):
     return render(request, "products/list.html", context)
 
 
+def _product_json_ld(product, base_url, page_url, seo_title, meta_description):
+    """schema.org Product + BreadcrumbList (Google zengin sonuç: fiyat, stok)."""
+    image = product.primary_image
+    product_data = {
+        "@type": "Product",
+        "@id": page_url + "#product",
+        "name": product.seo_h1 or product.name,
+        "sku": product.sku,
+        "url": page_url,
+        "brand": {"@type": "Brand", "name": "ASPIZ FLOWERS"},
+        "category": product.category.name,
+    }
+    if meta_description:
+        product_data["description"] = meta_description
+    if image:
+        product_data["image"] = [base_url + i.image.url for i in product.images.all()]
+
+    price_range = product.price_range
+    if price_range:
+        availability = "OutOfStock" if product.is_sold_out else "InStock"
+        product_data["offers"] = {
+            "@type": "AggregateOffer",
+            "priceCurrency": "TRY",
+            "lowPrice": format(price_range["min"], ".2f"),
+            "highPrice": format(price_range["max"], ".2f"),
+            "offerCount": len([t for t in product.price_tiers.all() if t.price is not None]),
+            "availability": "https://schema.org/" + availability,
+            "url": page_url,
+        }
+
+    data = {
+        "@context": "https://schema.org",
+        "@graph": [
+            product_data,
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Ana Sayfa",
+                     "item": base_url + reverse("core:home")},
+                    {"@type": "ListItem", "position": 2, "name": product.category.name,
+                     "item": base_url + reverse("products:by_category", args=[product.category.slug])},
+                    {"@type": "ListItem", "position": 3, "name": product.name, "item": page_url},
+                ],
+            },
+        ],
+    }
+    # "</" must never appear inside an inline <script>.
+    return json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+
+
 def product_detail(request, slug):
     product = get_object_or_404(
         Product.objects.select_related("category").prefetch_related("images", "price_tiers"),
@@ -130,4 +184,16 @@ def product_detail(request, slug):
         category=product.category, is_active=True
     ).exclude(pk=product.pk)[:6]
 
-    return render(request, "products/detail.html", {"product": product, "related": related})
+    base_url = settings.SITE_BASE_URL.rstrip("/")
+    page_url = base_url + product.get_absolute_url()
+    seo_title = product.seo_title or f"{product.name} | ASPIZ FLOWERS"
+    image = product.primary_image
+
+    return render(request, "products/detail.html", {
+        "product": product,
+        "related": related,
+        "seo_title": seo_title,
+        "canonical_url": page_url,
+        "og_image": (base_url + image.image.url) if image else "",
+        "json_ld": _product_json_ld(product, base_url, page_url, seo_title, product.meta_description),
+    })
