@@ -32,7 +32,7 @@ class BadgeAdminFilter(admin.SimpleListFilter):
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
-    fields = ("image", "is_primary", "order")
+    fields = ("image", "alt_text", "is_primary", "order")
 
 
 class ContactPriceField(forms.DecimalField):
@@ -81,6 +81,21 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ("name", "sku")
     prepopulated_fields = {"slug": ("name",)}
     inlines = [ProductImageInline, PriceTierInline]
+
+    fieldsets = (
+        (None, {"fields": ("category", "name", "slug", "sku", "description")}),
+        ("SEO", {
+            "fields": ("seo_title", "meta_description", "seo_h1"),
+            "description": "Google sonuçlarında ve sayfa başlığında görünen alanlar. Boş bırakılırsa otomatik değerler kullanılır.",
+        }),
+        ("Badge & discount", {"fields": ("badge", "discount_percent")}),
+        ("Stock", {"fields": ("stock_quantity", "low_stock_threshold")}),
+        ("Homepage ordering", {
+            "fields": ("popular_order", "new_order", "deal_order", "badge_order"),
+            "classes": ("collapse",),
+        }),
+        ("Status", {"fields": ("is_active",)}),
+    )
 
     @admin.display(description="Stock status")
     def stock_state(self, obj):
