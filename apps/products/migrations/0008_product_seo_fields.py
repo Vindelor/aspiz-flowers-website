@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
             model_name="product", name="seo_title",
             field=models.CharField(
                 "SEO title", max_length=70, blank=True,
-                help_text="<title> etiketi. Boşsa: '<ürün adı> | ASPIZ FLOWERS'. İdeal: 50-60 karakter."),
+                help_text="Sayfa başlığı (title etiketi). Boşsa: 'ürün adı | ASPIZ FLOWERS'. İdeal: 50-60 karakter."),
         ),
         migrations.AddField(
             model_name="product", name="meta_description",

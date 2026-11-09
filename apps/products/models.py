@@ -78,7 +78,7 @@ class Product(models.Model):
     # --- SEO (all optional: blank = automatic fallback in the template) ---
     seo_title = models.CharField(
         "SEO title", max_length=70, blank=True,
-        help_text="<title> etiketi. Boşsa: '<ürün adı> | ASPIZ FLOWERS'. İdeal: 50-60 karakter.")
+        help_text="Sayfa başlığı (title etiketi). Boşsa: 'ürün adı | ASPIZ FLOWERS'. İdeal: 50-60 karakter.")
     meta_description = models.CharField(
         max_length=200, blank=True,
         help_text="Google sonuçlarında görünen açıklama. İdeal: 120-160 karakter.")
