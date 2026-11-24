@@ -122,7 +122,9 @@ class ProductImageInline(admin.TabularInline):
     model = ProductImage
     form = ProductImageAdminForm
     extra = 1
+
     fields = ("image", "file_name", "alt_text", "is_primary", "order")
+
 
 
 class ContactPriceField(forms.DecimalField):
