@@ -29,10 +29,100 @@ class BadgeAdminFilter(admin.SimpleListFilter):
         return queryset.filter(badge=self.value()) if self.value() else queryset
 
 
+import os
+import posixpath
+
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import UploadedFile
+from django.utils.text import slugify
+
+_TR_MAP = str.maketrans({
+    "ı": "i", "İ": "i", "ş": "s", "Ş": "s", "ğ": "g", "Ğ": "g",
+    "ü": "u", "Ü": "u", "ö": "o", "Ö": "o", "ç": "c", "Ç": "c",
+})
+
+
+def seo_filename(raw):
+    """'Yapay Kasımpatı Demeti 35 cm' -> 'yapay-kasimpati-demeti-35-cm' (Turkish letters transliterated)."""
+    return slugify(str(raw).translate(_TR_MAP))[:70].strip("-")
+
+
+class ProductImageAdminForm(forms.ModelForm):
+    """Adds a "File name" box to every image row so the image file can be renamed
+    right here (no delete + re-upload). On a brand-new upload the same box sets the
+    name the file is saved under. Extension is kept; Turkish letters / spaces are
+    converted to a clean SEO-friendly slug automatically."""
+
+    file_name = forms.CharField(
+        label="File name", required=False, max_length=90,
+        widget=forms.TextInput(attrs={"size": 38}),
+        help_text="Without extension, e.g. yapay-kasimpati-demeti-35-cm-7-bas. Change it and save to rename the file.",
+    )
+
+    class Meta:
+        model = ProductImage
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._rename_to = None
+        inst = self.instance
+        if inst.pk and inst.image:
+            base = posixpath.basename(inst.image.name)
+            stem = posixpath.splitext(base)[0]
+            self.fields["file_name"].initial = stem
+            self.initial["file_name"] = stem
+            self.fields["file_name"].help_text = (
+                f"Current file: {base}. Change the name and save to rename it "
+                "(the image URL changes with it)."
+            )
+
+    def clean(self):
+        cleaned = super().clean()
+        if "file_name" not in self.changed_data:
+            return cleaned
+        new = seo_filename(cleaned.get("file_name") or "")
+        if not new:
+            return cleaned  # emptied -> keep the current/original name
+        upload = cleaned.get("image")
+        if isinstance(upload, UploadedFile):
+            # a new file is being uploaded in this same submit -> save it under the chosen name
+            ext = os.path.splitext(upload.name)[1].lower()
+            upload.name = f"{new}{ext}"
+        elif self.instance.pk and self.instance.image:
+            fieldfile = self.instance.image
+            old = fieldfile.name
+            folder, base = posixpath.split(old)
+            ext = posixpath.splitext(base)[1]
+            target = posixpath.join(folder, f"{new}{ext}")
+            if target != old:
+                if not fieldfile.storage.exists(old):
+                    raise ValidationError("The original image file was not found on disk, so it can't be renamed.")
+                if fieldfile.storage.exists(target):
+                    raise ValidationError(f"A file named {new}{ext} already exists in this folder. Choose another name.")
+                self._rename_to = target
+        return cleaned
+
+    def save(self, commit=True):
+        inst = super().save(commit=False)
+        if self._rename_to and inst.pk:
+            storage = inst.image.storage
+            old = inst.image.name
+            with storage.open(old, "rb") as fh:
+                saved = storage.save(self._rename_to, fh)
+            inst.image.name = saved
+            storage.delete(old)
+        if commit:
+            inst.save()
+            self._save_m2m()
+        return inst
+
+
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
+    form = ProductImageAdminForm
     extra = 1
-    fields = ("image", "alt_text", "is_primary", "order")
+    fields = ("image", "file_name", "alt_text", "is_primary", "order")
 
 
 class ContactPriceField(forms.DecimalField):
