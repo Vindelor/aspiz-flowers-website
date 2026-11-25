@@ -17,7 +17,7 @@
         <nav class="header-nav-links">
           <a href="{% url 'core:home' %}">{% trans "Anasayfa" %}</a>
           <a href="{% url 'products:list' %}">{% trans "Tüm Ürünler" %}</a>
-          <a href="{% url 'blog:index' %}">{% trans "Blog" %}</a>
+          {# <a href="{% url 'blog:index' %}">{% trans "Blog" %}</a> #}
           {% if user.is_authenticated %}
           <a href="{% url 'orders:history' %}">{% trans "Siparişlerim" %}</a>
           {% endif %}
@@ -71,7 +71,8 @@
 
     <div class="container hero3-in">
       <span class="hero3-badge">{% trans "Toptan satışa özel" %}</span>
-      <h1 data-hero3-split>{% trans "Yapay çiçekte" %} <em>{% trans "avantajlı" %}</em> {% trans "toptan fiyatlar" %}</h1>
+      {# H1 artık sadece SEO slider'ında (seo_slider.html); video başlığı görsel olarak aynı kaldı, etiketi <p> #}
+      <p class="hero3-title" data-hero3-split>{% trans "Yapay çiçekte" %} <em>{% trans "avantajlı" %}</em> {% trans "toptan fiyatlar" %}</p>
       <p class="hero3-sub">{% trans "Doğrudan ithalatçıdan, geniş ürün seçeneği ve hızlı teslimatla Türkiye'nin her yerine." %}</p>
 
       <div class="hero3-actions">
@@ -131,7 +132,7 @@
         <ul class="sidebar-links">
           <li><a href="{% url 'core:home' %}">{% trans "Anasayfa" %}</a></li>
           <li><a href="{% url 'products:list' %}">{% trans "Tüm Ürünler" %}</a></li>
-          <li><a href="{% url 'blog:index' %}">{% trans "Blog" %}</a></li>
+          {# <li><a href="{% url 'blog:index' %}">{% trans "Blog" %}</a></li> #}
           {% if user.is_authenticated %}
           <li><a href="{% url 'orders:history' %}">{% trans "Siparişlerim" %}</a></li>
           <li><a href="{% url 'accounts:profile' %}">{% trans "Hesabım" %}</a></li>

@@ -1,4 +1,4 @@
-from django.db.models import F
+from django.db.models import F, Q
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -22,6 +22,37 @@ EXTRA_BADGE_SECTION_TITLES = {
 # section's normal order after them.
 def pinned_first(field):
     return F(field).asc(nulls_last=True)
+
+
+# Ana sayfadaki "Ürün Grupları": (başlık, açıklama, aranacak kelimeler).
+# Ürünler, kategori adı VEYA ürün adı bu kelimelerden birini içeriyorsa gruba girer.
+# Kendi kategori adlarınıza göre kelimeleri buradan düzenleyebilirsiniz.
+PRODUCT_GROUPS = [
+    ("Yapay gül", "Gül demetleri, çiçekçilerin buketlerinde ve mağazaların satışa sunduğu ürünler arasında değerlendirilebilir.", ["gül", "gul"]),
+    ("Yapay karanfil", "Karanfil modelleri, farklı çiçek türlerini ürün yelpazesinde bulundurmak isteyen işletmeler için bir seçenektir.", ["karanfil"]),
+    ("Yapay kasımpatı", "Kasımpatı demetleri, daha dolgun çiçek formları aranan buket ve aranjmanlarda kullanılabilir.", ["kasımpatı", "kasimpati"]),
+    ("Yapay papatya", "Yapay papatya ürünleri, demet veya çiçek başı gibi farklı formlarla ürün çeşitliliğine katkı sağlar.", ["papatya"]),
+    ("Yapay yeşillik", "Yaprak ve yeşillikler, çiçek demetlerini tamamlayan veya dekoratif düzenlemelerde kullanılan ürünlerdir.", ["yeşillik", "yesillik", "yaprak"]),
+    ("Yapay sarmaşık", "Sarkıt formdaki bitkiler, çiçek demetlerinden farklı bir görünüm gerektiren dekoratif çalışmalara yöneliktir.", ["sarmaşık", "sarmasik", "sarkıt", "sarkit"]),
+    ("Yapay ağaç", "Ağaç formundaki seçenekler, buketlerden ziyade mekân düzenlemesi için değerlendirilen ürün grubudur.", ["ağaç", "agac", "ağac"]),
+    ("Aranjman ürünleri", "Çiçek ve bitkilerin yanında, aranjman yapımında kullanılabilecek sap gibi yardımcı parçalar da ürün yelpazesinde yer alır.", ["aranjman"]),
+]
+
+
+def build_product_groups(active_products, categories):
+    groups = []
+    for title, desc, keywords in PRODUCT_GROUPS:
+        q = Q()
+        for kw in keywords:
+            q |= Q(category__name__icontains=kw) | Q(name__icontains=kw)
+        products = list(active_products.filter(q).order_by("-created_at")[:10])
+        url = reverse("products:list")
+        for cat in categories:
+            if any(kw in cat.name.lower() for kw in keywords):
+                url = reverse("products:by_category", args=[cat.slug])
+                break
+        groups.append({"title": title, "desc": desc, "products": products, "url": url})
+    return groups
 
 
 def home(request):
@@ -62,6 +93,7 @@ def home(request):
 
     context = {
         "sections": sections,
+        "product_groups": build_product_groups(active_products, categories),
         "categories": categories,
         "new_products": new_products,
         "deal_products": deal_products,

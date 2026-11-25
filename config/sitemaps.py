@@ -9,7 +9,7 @@ class StaticViewSitemap(Sitemap):
     protocol = "https"
     changefreq = "weekly"
 
-    _PRIORITY = {"core:home": 1.0, "products:list": 0.9, "blog:index": 0.6}
+    _PRIORITY = {"core:home": 1.0, "products:list": 0.9}  # "blog:index": 0.6 (kapatıldı)
 
     def items(self):
         return list(self._PRIORITY)
