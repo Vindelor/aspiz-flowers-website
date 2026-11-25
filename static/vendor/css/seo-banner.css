@@ -1,5 +1,5 @@
 /* SEO giriş bandı: sitenin kendi arka planı (ayrı zemin/çerçeve yok). Metinler sabit ve tam görünür (slider yok). */
-.sb { color: var(--text-main); margin: 0 0 8px; }
+.sb { color: var(--text-main); margin: 28px 0 8px; }
 .sb-in { padding-top: 22px; padding-bottom: 26px; }
 .sb-head { max-width: 860px; margin: 0 auto; text-align: center; }
 .sb-title { margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500;
