@@ -1,7 +1,9 @@
 {% comment %}
 Usage:
 {% include "components/product_section.html" with title="Tüm Ürünler" products=all_products see_all_url=... %}
-Optional: promo=True  -> soft pink band + 6-hour repeating countdown next to the title
+Optional: heading_tag="h3" -> heading element (default h2).
+          desc="..." -> short muted description under the title (used by the home product groups).
+          promo=True  -> soft pink band + 6-hour repeating countdown next to the title
           (styles: static/vendor/css/promo-section.css, logic: static/vendor/js/promo-timer.js).
 
 Home / detail page section: up to 10 products in a single row that the user
@@ -15,12 +17,13 @@ does. The full catalogue keeps its own, denser grid on
 templates/products/list.html — that page is where cards shrink down to the
 "see everything" size; this carousel is the highlight strip.
 {% endcomment %}
+{% firstof heading_tag "h2" as ht %}
 <section class="{% if promo %}promo-section{% else %}py-5 md:py-10{% endif %}">
   <div class="{% if promo %}promo-head{% else %}mb-3 flex items-end justify-between md:mb-7{% endif %}">
     <div class="{% if promo %}promo-head-main{% endif %}">
-      <h2 class="font-display text-3xl uppercase leading-none tracking-wide md:text-4xl" style="color: var(--text-main);">
+      <{{ ht }} class="font-display text-3xl uppercase leading-none tracking-wide md:text-4xl" style="color: var(--text-main);">
         {{ title }}
-      </h2>
+      </{{ ht }}>
       {% if promo %}
         <div class="promo-timer" data-promo-timer role="timer" aria-label="Kampanyanın bitmesine kalan süre">
           <span class="promo-timer-box" data-promo-h>00</span>
@@ -41,6 +44,11 @@ templates/products/list.html — that page is where cards shrink down to the
     {% endif %}
   </div>
 
+  {% if desc %}
+    <p class="-mt-1 mb-3 max-w-3xl text-sm md:mb-5 md:text-base" style="color: var(--text-muted);">{{ desc }}</p>
+  {% endif %}
+
+  {% if products or not desc %}
   <div class="product-track" data-product-track tabindex="0" role="region"
        aria-label="{{ title }} ürünleri arasında gezinme">
     {% for product in products|slice:":10" %}
@@ -64,4 +72,5 @@ templates/products/list.html — that page is where cards shrink down to the
       </div>
     {% endif %}
   </div>
+  {% endif %}
 </section>

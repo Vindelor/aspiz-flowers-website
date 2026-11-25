@@ -17,7 +17,8 @@ urlpatterns = [
     path("products/", include("apps.products.urls")),
     path("cart/", include("apps.cart.urls")),
     path("orders/", include("apps.orders.urls")),
-    path("blog/", include("apps.blog.urls")),
+    # Blog sayfası kapatıldı; içeriği ana sayfada (templates/components/blog_content.html).
+    # path("blog/", include("apps.blog.urls")),
 ]
 
 if settings.DEBUG:

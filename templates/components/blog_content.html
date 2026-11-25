@@ -1,0 +1,15 @@
+{# Eski blog sayfasının "Ürün Grupları" bölümü. Üstteki metinler: seo_banner.html #}
+{# imleci takip eden altın parıltı kaldırıldı #}
+{# Ürün grupları: üstteki ürün bölümleriyle birebir aynı bileşen (product_section.html) -> aynı kart boyutu/dizilim. #}
+{# Gruplar apps/core/views.py -> PRODUCT_GROUPS'tan gelir; ürünü olmayan grup da başlık + metniyle gösterilir (içerik silinmez). #}
+<div class="bp bp-groups-intro">
+  <section class="bp-sec bp-groups" style="padding-top: 36px;">
+    <h2 class="bp-h2 bp-rv">Ticari Kullanıma Göre <span class="bp-accent">Ürün Grupları</span></h2>
+    <p class="bp-rv" style="margin-bottom: 4px;">ASPIZ FLOWERS’ın ürün yelpazesi, tek bir kategoriye odaklanmadan çiçek, bitki ve aranjman parçalarını bir araya getirir. Aşağıdaki gruplar, işletmelerin aradıkları ürün tipini genel hatlarıyla görmesi içindir; her modelin özellikleri kendi ürün bilgisinde yer alır.</p>
+  </section>
+</div>
+<div class="space-y-6">
+    {% for g in product_groups %}
+    {% include "components/product_section.html" with title=g.title products=g.products see_all_url=g.url desc=g.desc heading_tag="h3" %}
+  {% endfor %}
+</div>

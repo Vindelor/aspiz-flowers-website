@@ -2,25 +2,28 @@
 {% load static %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'vendor/css/promo-section.css' %}">
-  <link rel="stylesheet" href="{% static 'vendor/css/promo-banner.css' %}">
+  {# ince reklam bandı kapatıldı: <link rel="stylesheet" href="{% static 'vendor/css/promo-banner.css' %}"> #}
+  <link rel="stylesheet" href="{% static 'vendor/css/seo-banner.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/css/blog.css' %}">
 {% endblock %}
 {% block content %}
   
 
+  {# H1 + giriş metni sayfanın başında (sabit SEO giriş bandı) #}
+  {% include "components/seo_banner.html" %}
+
   <div class="space-y-6">
     {% for section in sections %}
       {% include "components/product_section.html" with title=section.title products=section.products bg=section.bg see_all_url=section.see_all_url promo=section.promo %}
-      {% if forloop.counter == 3 %}
-        {% include "components/promo_banner.html" %}
-      {% endif %}
     {% endfor %}
-    {% if sections|length < 3 %}
-      {% include "components/promo_banner.html" %}
-    {% endif %}
   </div>
+
+  {# Eski blog sayfasının içeriği #}
+  {% include "components/blog_content.html" %}
 
 {% endblock %}
 {% block extra_js %}
+  {# <script src="{% static 'vendor/js/blog.js' %}" defer></script> (imleç parıltısı kapatıldı) #}
   <script src="{% static 'vendor/js/promo-timer.js' %}" defer></script>
-  <script src="{% static 'vendor/js/promo-banner.js' %}" defer></script>
+  {# <script src="{% static 'vendor/js/promo-banner.js' %}" defer></script> #}
 {% endblock %}
