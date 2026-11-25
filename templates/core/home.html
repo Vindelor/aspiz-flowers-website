@@ -9,16 +9,16 @@
 {% block content %}
   
 
-  {# H1 + giriş metni sayfanın başında (sabit SEO giriş bandı) #}
-  {% include "components/seo_banner.html" %}
-
   <div class="space-y-6">
     {% for section in sections %}
       {% include "components/product_section.html" with title=section.title products=section.products bg=section.bg see_all_url=section.see_all_url promo=section.promo %}
     {% endfor %}
   </div>
 
-  {# Eski blog sayfasının içeriği #}
+  {# Ortada: sabit SEO metinleri (H1 + giriş + 4 H2). Üstte ürün satırları, altta ürün grupları. #}
+  {% include "components/seo_banner.html" %}
+
+  {# Eski blog sayfasının "Ürün Grupları" bölümü #}
   {% include "components/blog_content.html" %}
 
 {% endblock %}
